@@ -1,38 +1,4 @@
 <?php include('functions.php'); ?>
-<!--
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Registration system PHP and MySQL</title>
-	<link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
-	<div class="header">
-		<h2>Login</h2>
-	</div>
-	<form method="post" action="login.php">
-
-		<?php echo display_error(); ?>
-
-		<div class="input-group">
-			<label>Email</label>
-			<input type="text" name="email" placeholder="Email">
-		</div>
-		<div class="input-group">
-			<label>Password</label>
-			<input type="password" name="password" placeholder="Password">
-		</div>
-		<div class="input-group">
-			<button type="submit" class="btn" name="login_btn">Login</button>
-		</div>
-		<p>
-			Not yet a member? <a href="register.php">Sign up</a>
-		</p>
-	</form>
-</body>
-</html>
-
--->
  
 <!DOCTYPE html>
 <html lang="en">
@@ -67,10 +33,6 @@
                 <input type="submit" class="btn btn-primary" value="Login" name="login_btn">
             </div>
             <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
-			<br>test</br>
-			<?php echo totalUsers();
-			?>
-
         </form>
     </div>
 </body>

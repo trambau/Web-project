@@ -22,9 +22,15 @@ CREATE TABLE users (
         );
 
 
-CREATE TABLE genes (
-    sequence VARCHAR()
+CREATE TABLE genome (
+    id SERIAL,
+    name VARCHAR(25),
+    lo VARCHAR(30),
+    sequence VARCHAR,
+    PRIMARY KEY(id)
 );
+COPY genome 
+FROM '/home/trambaud/Documents/PW/Projet Web-20201011/data/Escherichia_coli_cft073.fa '|STDIN;
 /*
 ALTER TABLE users
 ADD COLUMN isApproved SMALLINT DEFAULT 0;
@@ -34,14 +40,12 @@ VALUES (DEFAULT, 'admin@email.com','pswd', '0123456789', 'admin', 'strator', 'AD
 /* create the first administrator */
 UPDATE users 
 SET usertype='admin' 
-WHERE email='admin@test.com';
+WHERE email='admin@email.com';
 
 UPDATE users
-SET usertype='admin' 
-AND isApproved=1
-WHERE email='ramelapierre@gmail.com';
+SET usertype='admin', isApproved=1
+WHERE email='admin@email.com';
 
-*/
 /*
 user login check if credentials in the database
 if yes redirect to page;
