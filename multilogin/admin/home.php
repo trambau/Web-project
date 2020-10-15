@@ -92,6 +92,8 @@ if(isset($_GET['uid'])){
 						<br>
 						<a href="home.php?logout='1'" style="color: red;">logout</a>
                        &nbsp; <a href="createUser.php"> + add user</a>
+					   &nbsp; <a href="parser.php"> add file</a>
+
 					</small>
 
 				<?php endif ?>

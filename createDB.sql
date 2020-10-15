@@ -9,7 +9,7 @@ pswd=postgres
 */
 CREATE TABLE users (
             id SERIAL,
-            email VARCHAR(50),
+            email VARCHAR(50) UNIQUE,
             pswd VARCHAR(500),/*for encrypted password*/
             phone VARCHAR(15),
             firstName VARCHAR(100),
@@ -24,11 +24,44 @@ CREATE TABLE users (
 
 CREATE TABLE genome (
     id SERIAL,
-    name VARCHAR(25),
-    lo VARCHAR(30),
+    GeneID VARCHAR UNIQUE,
+    loc VARCHAR,
     sequence VARCHAR,
     PRIMARY KEY(id)
 );
+CREATE TABLE cds (
+    id SERIAL,
+    cdsId VARCHAR UNIQUE, 
+    seqId VARCHAR,
+    location VARCHAR, 
+    geneId VARCHAR,
+    geneType VARCHAR, 
+    transcriptType VARCHAR, 
+    symbol VARCHAR,
+    description VARCHAR,
+    sequence VARCHAR,
+    PRIMARY KEY(id)
+);
+CREATE TABLE pep (
+    id SERIAL,
+    pepId VARCHAR UNIQUE,
+    seqId VARCHAR,
+     location VARCHAR, 
+    geneId VARCHAR,
+    transcript VARCHAR,
+    geneType VARCHAR, 
+    transcryptType VARCHAR, 
+    symbol VARCHAR,
+    description VARCHAR,
+    sequence VARCHAR,
+    PRIMARY KEY(id) 
+);
+
+COPY genome(name, lo, test, sequence, tt, ttt) 
+FROM '/home/trambaud/Documents/PW/Projet Web-20201011/data/Escherichia_coli_cft073.fa'
+delimiter ':';
+
+
 COPY genome 
 FROM '/home/trambaud/Documents/PW/Projet Web-20201011/data/Escherichia_coli_cft073.fa '|STDIN;
 /*
