@@ -1,4 +1,5 @@
 
+<?php include('../functions.php') ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,14 +10,25 @@
     <form action="<?php $_SERVER['PHP_SELF'];?>" method="post">
     Enter the absolute path of the directory with the fasta files.<br>
     <input type="text" value="<?php echo $fileDir;?>" placeholder="file location" value="<?php echo $loc?>" name="file">
-    <input type="submit" value="Submit">
-    <input type="reset" value="Reset">
-	<button onClick="history.go(-1) " class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i>Return</button></a>
-			
+    <input type="submit" value="Submit" class="btn btn-primary" name="addFile_btn">
+    <input type="reset" value="Reset" class="btn btn-default">
+	<input type="button" onclick="location.href='./home.php';" value="Back" class="btn btn-default"/>
+    </form>
 
+    <?php if (isset($_SESSION['addSuccess'])) : ?>
+			<div class="error success" >
+				<h3>
+					<?php 
+						echo $_SESSION['addSuccess']; 
+						unset($_SESSION['addSuccess']);
+					?>
+				</h3>
+			</div>
+		<?php endif ?>
 </body>
 </html>
 <?php
+/*
 //so the scrip is fully executed.
 set_time_limit(0);
 $fileDir=$_POST['file'];
@@ -256,5 +268,5 @@ foreach ($files as $file) {
         }
     }
     //apache_reset_timeout();
-}
+}*/
 ?>
