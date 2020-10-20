@@ -7,6 +7,7 @@ dbname=db
 user=postgres
 pswd=postgres
 */
+
 CREATE TABLE users (
             id SERIAL,
             email VARCHAR(50) UNIQUE,
