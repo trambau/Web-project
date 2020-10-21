@@ -6,11 +6,16 @@
         header('location: login.php');
     }
 ?>
+
+
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Home</title>
-	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
 </head>
 <body>
 	<div class="header">
@@ -37,7 +42,7 @@
 					<strong><?php echo $_SESSION['user']["firstname"]; ?></strong>
 
 					<small>
-						<i  style="color: #888;">(<?php echo ucfirst($_SESSION['user']["usertype"]); ?>)</i> 
+						<i  style="color: #888;">(<?php echo ucfirst($_SESSION['user']["userrole"]); ?>)</i> 
 						<br>
 						<a href="index.php?logout='1'" style="color: red;">logout</a>
 					</small>

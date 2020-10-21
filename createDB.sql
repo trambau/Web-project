@@ -43,6 +43,7 @@ CREATE TABLE cds (
     sequence VARCHAR,
     PRIMARY KEY(id)
 );
+foreign key(seqid) references genome(geneid);
 CREATE TABLE pep (
     id SERIAL,
     pepId VARCHAR UNIQUE,
@@ -57,14 +58,9 @@ CREATE TABLE pep (
     sequence VARCHAR,
     PRIMARY KEY(id) 
 );
+foreign key(seqid) references genome(geneid);
+foreign key(geneId) references cds(geneid);
 
-COPY genome(name, lo, test, sequence, tt, ttt) 
-FROM '/home/trambaud/Documents/PW/Projet Web-20201011/data/Escherichia_coli_cft073.fa'
-delimiter ':';
-
-
-COPY genome 
-FROM '/home/trambaud/Documents/PW/Projet Web-20201011/data/Escherichia_coli_cft073.fa '|STDIN;
 /*
 ALTER TABLE users
 ADD COLUMN isApproved SMALLINT DEFAULT 0;
@@ -79,6 +75,9 @@ WHERE email='admin@email.com';
 UPDATE users
 SET usertype='admin', isApproved=1
 WHERE email='admin@email.com';
+
+/*export data */
+\copy (select sequence, id from pep) to '/home/trambaud/Documents/test.csv' with csv delimiter ';' header;
 
 /*
 user login check if credentials in the database

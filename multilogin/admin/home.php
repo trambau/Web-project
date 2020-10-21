@@ -93,6 +93,7 @@ if(isset($_GET['uid'])){
 						<a href="home.php?logout='1'" style="color: red;">logout</a>
                        &nbsp; <a href="createUser.php"> + add user</a>
 					   &nbsp; <a href="parser.php"> add file</a>
+					   &nbsp; <a href="../search.php"> Search</a>
 
 					</small>
 
@@ -142,9 +143,11 @@ if(isset($_GET['uid'])){
 			}
 			?>
 			</td>
-			<td>                      
+			<td>    
+			    <!--              
 				<a href="updateProfile.php?uid=<?php echo $row['id'];?>"> 
 				<button class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></button></a>
+				-->
 				<a href="home.php?id=<?php echo $row['id'];?>"> 
 				<button class="btn btn-danger btn-xs" onClick="return confirm('Do you really want to delete');"><i class="fa fa-trash-o " ></i>
 				<img src="../../bin.jpg" >
