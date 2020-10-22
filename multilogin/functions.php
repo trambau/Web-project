@@ -4,13 +4,14 @@ session_start();
 
 // connect to database
 try{
-    /*
+    
     $datab="db";
     $user="postgres";
-    $dbpswd="postgres";*/
+    $dbpswd="postgres";
+    /*
     $datab="sample";
     $user="trambaud";
-    $dbpswd="trambaud";
+    $dbpswd="trambaud";*/
     $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
     $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -375,7 +376,7 @@ function parseFile ($file){
                     $stmt->execute();
                     $dbID=$myPDO->lastInsertId();
                 }catch(Exception $e){
-                    die($e->getMessage());
+                    die("error insert genome".$e->getMessage());
                 }
 
 
@@ -391,16 +392,22 @@ function parseFile ($file){
                         $stmt->bindParam(":id", $dbID, PDO::PARAM_INT);
                         $stmt->execute();
                     }catch(Exception $e){
-                        die($e->getMessage());
+                        die("error update seq in pep".$e->getMessage());
                     }
                 }
                 $pepId=$array[0];
                 $flag=1;
                 $id=$location=$geneId=$transcript=$geneType=$transType=$sym=$description=$seq="";
+                //$id=$array[3];
+
                 for($i=0; $i<count($array); $i++) {
                     if($array[$i]=="chromosome"){
                         $id=$array[$i+1];
                         $i++;
+                    }elseif($array[$i]=="plasmid"){
+                        $id=$array[$i+1];
+                        $location=$array[$i+2].":".$array[$i+3].":".$array[$i+4];
+                        $i+=4;
                     }elseif($array[$i]=="Chromosome"){
                         $location=$array[$i+1].":".$array[$i+2].":".$array[$i+3];
                         $i+=3;
@@ -438,7 +445,7 @@ function parseFile ($file){
                     $stmt->execute();
                     $dbID=$myPDO->lastInsertId();
                 }catch(Exception $e){
-                    die($e->getMessage());
+                    die("error insert pep".$e->getMessage());
                 }
                 //not annoted
                 if(empty($geneId)){
@@ -479,21 +486,14 @@ function parseFile ($file){
                         $stmt->bindParam(":id", $dbID, PDO::PARAM_INT);
                         $stmt->execute();
                     }catch(Exception $e){
-                        die($e->getMessage());
+                        die("Error update cds seq".$e->getMessage());
                     }
                 }
                 $cdsId=$array[0];
                 $flag=2;
-                $id=$location=$seq="";
-                for($i=0; $i<count($array); $i++) {
-                    if($array[$i]=="chromosome"){
-                        $id=$array[$i+1];
-                        $i++;
-                    }elseif($array[$i]=="Chromosome"){
-                        $location=$array[$i+1].":".$array[$i+2].":".$array[$i+3];
-                        $i+=3;
-                    }
-                }
+                $seq="";
+                $id=$array[3];
+                $location=$array[5].":".$array[6].":".$array[7];
 
                 //value insertion
                 $query="INSERT INTO cds VALUES (DEFAULT, :cdsId, :chromid, :loc, :seq);";
@@ -506,7 +506,7 @@ function parseFile ($file){
                     $stmt->execute();
                     $dbID=$myPDO->lastInsertId();
                 }catch(Exception $e){
-                    die($e->getMessage());
+                    die("error cds insert".$id."this chrom id".$e->getMessage());
                 }
 
             }
@@ -526,7 +526,7 @@ function parseFile ($file){
             $stmt->bindParam(":id", $dbID, PDO::PARAM_INT);
             $stmt->execute();
         }catch(Exception $e){
-            die($e->getMessage());
+            die("error last update seq genome".$e->getMessage());
         }
     }elseif($flag==1){
         $query="UPDATE pep SET sequence=:seq WHERE id=:id;";
@@ -536,7 +536,7 @@ function parseFile ($file){
             $stmt->bindParam(":id", $dbID, PDO::PARAM_INT);
             $stmt->execute();
         }catch(Exception $e){
-            die($e->getMessage());
+            die("error last update pep".$e->getMessage());
         }
     }else{
         $query="UPDATE cds SET sequence=:seq WHERE id=:id;";
@@ -546,7 +546,7 @@ function parseFile ($file){
             $stmt->bindParam(":id", $dbID, PDO::PARAM_INT);
             $stmt->execute();
         }catch(Exception $e){
-            die($e->getMessage());
+            die("error last update cds".$e->getMessage());
         }
     }
 }

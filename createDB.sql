@@ -30,7 +30,7 @@ CREATE TABLE cds (
     location VARCHAR, 
     sequence VARCHAR,
     PRIMARY KEY(id),
-    FOREIGN KEY(chromId) REFERENCES genome(chromId)
+    /*FOREIGN KEY(chromId) REFERENCES genome(chromId)*/
 );
 CREATE TABLE pep (
     id SERIAL,
@@ -73,18 +73,6 @@ WHERE email='admin@email.com';
 UPDATE users
 SET usertype='admin', isApproved=1
 WHERE email='admin@email.com';
-
-
-
-
-update genome
-set isAnnotated=1
-from genome, pep, annot
-where genome.chromID=pep.chromID
-and pep.pepid=annot.annotID
-and annot.validated=1
-;
-
 
 /* old tables
 CREATE TABLE users (
