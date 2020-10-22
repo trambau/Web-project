@@ -150,7 +150,7 @@ if(isset($_GET['uid'])){
 				-->
 				<a href="home.php?id=<?php echo $row['id'];?>"> 
 				<button class="btn btn-danger btn-xs" onClick="return confirm('Do you really want to delete');"><i class="fa fa-trash-o " ></i>
-				<img src="../../bin.jpg" >
+				<img src="../assets/bin.jpg" >
 				</button></a>
 			</td>
 	</tr>

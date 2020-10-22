@@ -1,24 +1,10 @@
 <?php
-session_start();
-// connect to database
-try{
-    $datab="db";
-    $user="postgres";
-    $dbpswd="postgres";
-    $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
-    $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-}
-catch(PDOException $e){     
-    die("DB ERROR: " . $e->getMessage());
+include('functions.php');
+if (!isLoggedIn()) {
+    $_SESSION['msg'] = "You must log in first";
+    header('location: login.php');
 }
 
-if (isset($_POST['search_btn'])) {
-	search();
-}
-function search(){
-    
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -41,7 +27,8 @@ function yesnoCheck(that) {
 }
 </script>
 <div class="wrapper">
-<form action="<?php $_SERVER['PHP_SELF'];?>" method="post">
+<h2>Search complete  genome or peptides/genes</h2>
+<form action="results.php" method="post">
     <div class="form-group">
         <label>ID genome:</label> 
         <input type="text" value="" class="form-control" name="genomeID" placeholder="ASM...">
@@ -55,7 +42,7 @@ function yesnoCheck(that) {
         <textarea name="sequence" class="form-control" placeholder="AGCTTTT..."></textarea>
     </div>
     <label>Output type</label>
-    <select class="form-control mx-sm-3" onchange="yesnoCheck(this);">
+    <select name="type" class="form-control mx-sm-3" onchange="yesnoCheck(this);">
         <option selected="selected" value="genome" name="genome">Genome</option>
         <option value="other" name="other">Gene/peptide</option>
     

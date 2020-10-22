@@ -41,7 +41,8 @@ CREATE TABLE cds (
     symbol VARCHAR,
     description VARCHAR,
     sequence VARCHAR,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    FOREIGN KEY(seqId) REFERENCES genome(GeneId)
 );
 foreign key(seqid) references genome(geneid);
 CREATE TABLE pep (
@@ -56,11 +57,25 @@ CREATE TABLE pep (
     symbol VARCHAR,
     description VARCHAR,
     sequence VARCHAR,
-    PRIMARY KEY(id) 
-);
-foreign key(seqid) references genome(geneid);
-foreign key(geneId) references cds(geneid);
+    PRIMARY KEY(id),
+    FOREIGN KEY(seqID) REFERENCES genome(GeneID),
+    FOREIGN KEY(geneId) REFERENCES cds(geneId),
+    FOREIGN KEY(pepId) REFERENCES cds(cdsID)
 
+);
+
+CREATE table annot(
+    id SERIAL,
+    annotID VARCHAR,
+    geneID VARCHAR,
+    transcript VARCHAR,
+    geneType VARCHAR, 
+    transcryptType VARCHAR, 
+    symbol VARCHAR,
+    description VARCHAR,
+    PRIMARY KEY(id),
+    FOREIGN KEY(annotID) REFERENCES cds(cdsID)
+);
 /*
 ALTER TABLE users
 ADD COLUMN isApproved SMALLINT DEFAULT 0;
@@ -78,8 +93,3 @@ WHERE email='admin@email.com';
 
 /*export data */
 \copy (select sequence, id from pep) to '/home/trambaud/Documents/test.csv' with csv delimiter ';' header;
-
-/*
-user login check if credentials in the database
-if yes redirect to page;
-*/
