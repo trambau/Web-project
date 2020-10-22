@@ -4,13 +4,9 @@ session_start();
 
 // connect to database
 try{
-    /*
     $datab="db";
     $user="postgres";
-    $dbpswd="postgres";*/
-    $datab="sample";
-    $user="trambaud";
-    $dbpswd="trambaud";
+    $dbpswd="postgres";
     $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
     $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
