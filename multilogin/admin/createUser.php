@@ -41,13 +41,13 @@ if (!isAdmin()) {
 				<select name="usertype" id="usertype" >
 					<option value=""></option>
 					<option value="admin">Admin</option>
-					<option value="user">User</option>
+					<option selected="selected" value="user">User</option>
 				</select>
 			</div>
 			<div class="form-group <?php echo (!empty($role_er)) ? 'has-error' : ''; ?>">
 				<label>User role</label>
 				<select name="userRole" id="userRole" >
-					<option value="utilisateur" <?php if($role=="utilisateur"){echo "selected";}?>>Utilisateur</option>
+					<option selected="selected" value="utilisateur" <?php if($role=="utilisateur"){echo "selected";}?>>Utilisateur</option>
 					<option value="annotator" <?php if($role=="annotator"){echo "selected";}?>>Annotateur</option>
 					<option value="validator" <?php if($role=="validator"){echo "selected";}?>>Validateur</option>
 				</select>

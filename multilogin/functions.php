@@ -4,9 +4,13 @@ session_start();
 
 // connect to database
 try{
+    /*
     $datab="db";
     $user="postgres";
-    $dbpswd="postgres";
+    $dbpswd="postgres";*/
+    $datab="sample";
+    $user="trambaud";
+    $dbpswd="trambaud";
     $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
     $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -31,7 +35,7 @@ function register(){
 	// call these variables with the global keyword to make them available in function
 	global $myPDO, $errors, $fName, $email, $lName, $phone, $fName_er, $lName_er, $phone_er, $email_er, $password2_er, $password_er, $role, $role_er;
 
-    // defined below to escape form values
+    //get the values from the form
     $fName       =  trim($_POST['firstName']);
     $fName_er="";
     $lName       =  trim($_POST['lastName']);
@@ -103,7 +107,7 @@ function register(){
 	// register user if there are no errors in the form       
     if(empty($fName_er) && empty($lName_er) && empty($phone_er) && empty($email_er) && empty($password_er) && empty($password2_er) && empty($role_er)){
 		$password = password_hash($password_1, PASSWORD_DEFAULT);//encrypt the password before saving in the database
-
+        //Check if usertype is set, if yes validate the account
 		if (isset($_POST['usertype'])) {
 			$user_type = trim($_POST['usertype']);
 			$query = "INSERT INTO users (firstname, lastname,phone,  email, usertype, pswd, isapproved, userrole) 
@@ -124,7 +128,7 @@ function register(){
 			$_SESSION['success']  = "New user successfully created!!";
 			header('location: home.php');
 		}else{
-            
+            //create an account not yet validated
 			$query = "INSERT INTO users (firstname, lastname, phone, email, usertype, pswd, userrole)
                       VALUES(:fName, :lName, :phone, :email, 'user', :password, :role)";
             try{
@@ -171,19 +175,8 @@ function getUserById($id){
         die($e->getMessage);
     }  
 	return $user;
-}
-
-function display_error() {
-	global $errors;
-
-	if (count($errors) > 0){
-		echo '<div class="error">';
-			foreach ($errors as $error){
-				echo $error .'<br>';
-			}
-		echo '</div>';
-	}
 }	
+//check if looged in
 function isLoggedIn()
 {
 	if (isset($_SESSION['user'])) {
@@ -274,9 +267,26 @@ function login(){
 		}
 	}
 }
+//check if the current user is admin
 function isAdmin()
 {
 	if (isset($_SESSION['user']) && $_SESSION['user']['usertype'] == 'admin' ) {
+		return true;
+	}else{
+		return false;
+	}
+}
+//check if the current user is a validator
+function isValidator(){
+    if (isset($_SESSION['user']) && $_SESSION['user']['userrole'] == 'validator' ) {
+		return true;
+	}else{
+		return false;
+	}
+}
+//check if the current user is an annotator
+function isAnnotator(){
+    if (isset($_SESSION['user']) && $_SESSION['user']['userrole'] == 'annotator' ) {
 		return true;
 	}else{
 		return false;
@@ -298,12 +308,33 @@ function totalUsers () {
 function test (){
     echo "test function";
 }
+//browse every files in a directory
 function parseDir ($dir){
     $files=glob($dir."*.fa");
     foreach ($files as $file) {
         parseFile($file);
     }
 }
+//check if file or directory and add it to the DB
+function addFiles(){
+    //make sure the script is fully executed
+    set_time_limit(0);
+    $dir=$_POST['file'];
+    if(is_dir($dir)){
+        parseDir($dir);
+    }elseif(is_file($dir)){
+        parseFile($dir);
+    }else{
+        die("Not a file or directory.");
+    }
+}
+//check if the button was pressed
+if (isset($_POST['addFile_btn'])) {
+    addFiles();
+    //success message
+    $_SESSION['addSuccess']="Files added.";
+}
+//parse the file and insert them into the db
 function parseFile ($file){
     global $myPDO;
     $lines=file($file) or die("unable to open it");
@@ -333,7 +364,7 @@ function parseFile ($file){
                 $location=$array[6]. ":" .$array[7].":".$array[8];
 
                 //value insertion
-                $query="INSERT INTO genome VALUES (DEFAULT, :id, :loc, :seq);";
+                $query="INSERT INTO genome VALUES (DEFAULT, :id, :loc, :seq, DEFAULT);";
                 try{
                     $stmt=$myPDO->prepare($query);
                     $stmt->bindParam(":id", $id, PDO::PARAM_STR);
@@ -395,23 +426,44 @@ function parseFile ($file){
                 }
 
                 //value insertion
-                $query="INSERT INTO pep VALUES (DEFAULT, :pepId, :sid, :loc, :geneId, :transcript, :geneType, :transType, :sym, :des, :seq);";
+                $query="INSERT INTO pep VALUES (DEFAULT, :pepId, :chromid, :loc, :seq);";
                 try{
                     $stmt=$myPDO->prepare($query);
                     $stmt->bindParam(":pepId", $pepId, PDO::PARAM_STR);
-                    $stmt->bindParam(":sid", $id, PDO::PARAM_STR);
+                    $stmt->bindParam(":chromid", $id, PDO::PARAM_STR);
                     $stmt->bindParam(":loc", $location, PDO::PARAM_STR);
-                    $stmt->bindParam(":geneId", $geneId, PDO::PARAM_STR);
-                    $stmt->bindParam(":transcript", $transcript, PDO::PARAM_STR);
-                    $stmt->bindParam(":geneType", $geneType, PDO::PARAM_STR);
-                    $stmt->bindParam(":transType", $transType, PDO::PARAM_STR);
-                    $stmt->bindParam(":sym", $sym, PDO::PARAM_STR);
-                    $stmt->bindParam(":des", $description, PDO::PARAM_STR);
                     $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
                     $stmt->execute();
                     $dbID=$myPDO->lastInsertId();
                 }catch(Exception $e){
                     die($e->getMessage());
+                }
+                //not annoted
+                if(empty($geneId)){
+                    $queryAnnot="INSERT INTO annot (id, annotid, validated)  VALUES (DEFAULT, :pepId, 0);";
+                    try{
+                        $stmt2=$myPDO->prepare($queryAnnot);
+                        $stmt2->bindParam(":pepId", $pepId, PDO::PARAM_STR);
+                        $stmt2->execute();
+                    }catch(PDOException $e){
+                        die("ERROR annot empty".$e->getMessage());
+                    }
+                }else{
+                    //Already annoted
+                    $queryAnnot="INSERT INTO annot VALUES (DEFAULT, :pepId, :geneId, :trans, :geneType, :transType, :symbol, :des, 1, NULL);";
+                    try{
+                        $stmt2=$myPDO->prepare($queryAnnot);
+                        $stmt2->bindParam(":pepId", $pepId, PDO::PARAM_STR);
+                        $stmt2->bindParam(":geneId", $geneId, PDO::PARAM_STR);
+                        $stmt2->bindParam(":trans", $transcript, PDO::PARAM_STR);
+                        $stmt2->bindParam(":geneType", $geneType, PDO::PARAM_STR);
+                        $stmt2->bindParam(":transType", $transType, PDO::PARAM_STR);
+                        $stmt2->bindParam(":symbol", $sym, PDO::PARAM_STR);
+                        $stmt2->bindParam(":des", $description, PDO::PARAM_STR);
+                        $stmt2->execute();
+                    }catch(PDOException $e){
+                        die("ERROR annot".$e->getMessage());
+                    }
                 }
             //value for cds table
             }else{
@@ -430,7 +482,7 @@ function parseFile ($file){
                 }
                 $cdsId=$array[0];
                 $flag=2;
-                $id=$location=$geneId=$geneType=$transType=$sym=$description=$seq="";
+                $id=$location=$seq="";
                 for($i=0; $i<count($array); $i++) {
                     if($array[$i]=="chromosome"){
                         $id=$array[$i+1];
@@ -438,38 +490,16 @@ function parseFile ($file){
                     }elseif($array[$i]=="Chromosome"){
                         $location=$array[$i+1].":".$array[$i+2].":".$array[$i+3];
                         $i+=3;
-                    }elseif ($array[$i]=="gene") {
-                        $geneId=$array[$i+1];
-                        $i++;
-                    }elseif($array[$i]=="gene_biotype"){
-                        $geneType=$array[$i+1];
-                        $i++;
-                    }elseif ($array[$i]=="transcript_biotype") {
-                        $transType=$array[$i+1];
-                        $i++;
-                    }elseif($array[$i]=="gene_symbol"){
-                        $sym=$array[$i+1];
-                        $i++;
-                    }elseif ($array[$i]=="description") {
-                        for($j=$i+1; $j<count($array); $j++){
-                            $description.=" ".$array[$j];
-                        }
-                        $i=count($array);
                     }
                 }
 
                 //value insertion
-                $query="INSERT INTO cds VALUES (DEFAULT, :cdsId, :sid, :loc, :geneId, :geneType, :transType, :sym, :des, :seq);";
+                $query="INSERT INTO cds VALUES (DEFAULT, :cdsId, :chromid, :loc, :seq);";
                 try{
                     $stmt=$myPDO->prepare($query);
                     $stmt->bindParam(":cdsId", $cdsId, PDO::PARAM_STR);
-                    $stmt->bindParam(":sid", $id, PDO::PARAM_STR);
+                    $stmt->bindParam(":chromid", $id, PDO::PARAM_STR);
                     $stmt->bindParam(":loc", $location, PDO::PARAM_STR);
-                    $stmt->bindParam(":geneId", $geneId, PDO::PARAM_STR);
-                    $stmt->bindParam(":geneType", $geneType, PDO::PARAM_STR);
-                    $stmt->bindParam(":transType", $transType, PDO::PARAM_STR);
-                    $stmt->bindParam(":sym", $sym, PDO::PARAM_STR);
-                    $stmt->bindParam(":des", $description, PDO::PARAM_STR);
                     $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
                     $stmt->execute();
                     $dbID=$myPDO->lastInsertId();
@@ -518,23 +548,4 @@ function parseFile ($file){
         }
     }
 }
-//check if file or directory and add it to the DB
-function addFiles(){
-    
-    set_time_limit(0);
-    $dir=$_POST['file'];
-    if(is_dir($dir)){
-        parseDir($dir);
-    }elseif(is_file($dir)){
-        parseFile($dir);
-    }else{
-        die("Not a file or directory.");
-    }
-}
-if (isset($_POST['addFile_btn'])) {
-    addFiles();
-    //success message
-    $_SESSION['addSuccess']="Files added.";
-}
-
 ?>
