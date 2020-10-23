@@ -25,10 +25,22 @@ View
 <header>
 </header>
 <body>
+    <script>
+        function addNewlines(str) {
+            var result = '';
+            while (str.length > 0) {
+                result += str.substring(0, 100) + '\n';
+                str = str.substring(100);
+            }
+            return result;
+        }
+    </script>
 <table>
     <tbody>
         <tr>
-            
+        <span style="width:200px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
+   <?php echo $res['sequence'];?>
+        </span>
         </tr>
     </tbody>
 </table>

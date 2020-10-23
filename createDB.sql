@@ -21,6 +21,7 @@ CREATE TABLE genome (
     loc VARCHAR,
     sequence VARCHAR,
     isAnnotated SMALLINT DEFAULT 0,
+    name VARCHAR(70),
     PRIMARY KEY(id)
 );
 CREATE TABLE cds (
@@ -30,7 +31,7 @@ CREATE TABLE cds (
     location VARCHAR, 
     sequence VARCHAR,
     PRIMARY KEY(id),
-    /*FOREIGN KEY(chromId) REFERENCES genome(chromId)*/
+    FOREIGN KEY(chromId) REFERENCES genome(chromId)
 );
 CREATE TABLE pep (
     id SERIAL,

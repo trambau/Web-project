@@ -20,7 +20,7 @@ function search(){
 }
 function genomeSearch(){
     global $myPDO;
-    $query="SELECT id, geneid, loc, sequence from genome;";
+    $query="SELECT id, chromid, loc, sequence from genome;";
     try{
         $stmt=$myPDO->prepare($query);
         $stmt->execute();
@@ -47,12 +47,17 @@ Results
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
 </header>
 <body>
-
+<div class="header" style="background-color:dodgerblue">
+        <br>
+        <a style="float:right;color:red" href="home.php?logout='1'">logout</a>
+        <h2 style="color:azure">LOGO</h2>
+    </div>
 <table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i> Results </h4>
 		<hr>
 		<thead>
 		<tr>
+            <th>ID</th>
 			<th>Gene ID</th>
 		</tr>
 		</thead>
@@ -61,7 +66,8 @@ Results
 	while($row=$res->fetch(PDO::FETCH_ASSOC)){
 	?>
 	<tr>
-			<td onclick="location.href='view.php?id=<?php echo $row['id'];?>?type=<?php echo $type;?>'"><?php echo $row['geneid'];?></td>
+            <td onclick="location.href='view.php?id=<?php echo $row['id'];?>?type=<?php echo $type;?>'"><?php echo $row['id'];?></td>
+            <td onclick="location.href='view.php?id=<?php echo $row['id'];?>?type=<?php echo $type;?>'"><?php echo $row['chromid'];?></td>
             
 	</tr>
 	<?php 

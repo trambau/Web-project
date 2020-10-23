@@ -53,6 +53,7 @@ if(isset($_GET['uid'])){
 <head>
 	<title>Home</title>
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../style.css">
 	<style>
 	.header {
 		background: #003366;
@@ -63,9 +64,37 @@ if(isset($_GET['uid'])){
 	</style>
 </head>
 <body>
+<div class="topnav">
+<div style="float:left" class="dropdown">
+			<div class="dropbtn">Menu</div>
+		<div class="dropdown-content">
+			<a href="#">Link 1</a>
+			<a href="#">Link 2</a>
+			<a href="#">Link 3</a>
+			<strong><?php echo $_SESSION['user']["firstname"]; ?></strong>
+		</div>
+	</div>
+  <a class="active" href="#home">Home</a>
+  <a href="#news">News</a>
+  <a href="#contact">Contact</a>
+  <a href="#about">About</a>
+  <form style="padding: 7px 16px;" action="" method="post">
+	  <input type="text">
+  </form>
+  
+</div> 
+<div class="header" style="background-color: #003366;position:relative">
+
+	<a style="float:right;color:red" href="home.php?logout='1'">logout</a>
+	<br>
+	<h2 style="color:azure">LOGO</h2>
+	 
+</div>
+
+<!--
 	<div class="header">
 		<h2 style="color:#eaeaea">Admin - Home Page</h2>
-	</div>
+	</div>-->
 	<div class="content">
 		<!-- notification message -->
 		<?php if (isset($_SESSION['success'])) : ?>

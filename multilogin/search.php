@@ -16,6 +16,11 @@ if (!isLoggedIn()) {
 </header>
 <title>Search</title>
 <body>
+<div class="header" style="background-color:dodgerblue">
+        <br>
+        <a style="float:right;color:red" href="home.php?logout='1'">logout</a>
+        <h2 style="color:azure">LOGO</h2>
+    </div>
 <script>
 function yesnoCheck(that) {
     if (that.value == "other") {

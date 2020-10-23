@@ -346,7 +346,7 @@ function parseFile ($file){
 
             $array=preg_split('/[\s:]+/',$line);
             $array[0]=substr($array[0], 1);
-            //value creation for gene table
+            //value creation for genome table
             if ($array[1]=="dna") {
                 //add the full sequence to the last row
                 if(!empty($seq)){
@@ -365,14 +365,19 @@ function parseFile ($file){
                 $id=$location="";
                 $id=$array[4];
                 $location=$array[6]. ":" .$array[7].":".$array[8];
-
+                //get the strain name
+                $tmp=explode('/',$file);
+                $tmp=array_pop($tmp);
+                $name=explode('.', $tmp);
+                $name=$name[0];
                 //value insertion
-                $query="INSERT INTO genome VALUES (DEFAULT, :id, :loc, :seq, DEFAULT);";
+                $query="INSERT INTO genome VALUES (DEFAULT, :id, :loc, :seq, DEFAULT, :name);";
                 try{
                     $stmt=$myPDO->prepare($query);
                     $stmt->bindParam(":id", $id, PDO::PARAM_STR);
                     $stmt->bindParam(":loc", $location, PDO::PARAM_STR);
                     $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
+                    $stmt->bindParam(":name", $name, PDO::PARAM_STR);
                     $stmt->execute();
                     $dbID=$myPDO->lastInsertId();
                 }catch(Exception $e){
