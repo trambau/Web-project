@@ -4,14 +4,15 @@ session_start();
 
 // connect to database
 try{
-    
+    /*
     $datab="db";
     $user="postgres";
     $dbpswd="postgres";
-    /*
+    */
+    
     $datab="sample";
     $user="trambaud";
-    $dbpswd="trambaud";*/
+    $dbpswd="trambaud";
     $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
     $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -364,12 +365,13 @@ function parseFile ($file){
                 $flag=0;
                 $id=$location="";
                 $id=$array[4];
-                $location=$array[6]. ":" .$array[7].":".$array[8];
+                $location=$array[6]. " " .$array[7]." ".$array[8];
                 //get the strain name
                 $tmp=explode('/',$file);
                 $tmp=array_pop($tmp);
                 $name=explode('.', $tmp);
                 $name=$name[0];
+                $name=str_replace("_", " ", $name);
                 //value insertion
                 $query="INSERT INTO genome VALUES (DEFAULT, :id, :loc, :seq, DEFAULT, :name);";
                 try{
@@ -411,10 +413,10 @@ function parseFile ($file){
                         $i++;
                     }elseif($array[$i]=="plasmid"){
                         $id=$array[$i+1];
-                        $location=$array[$i+2].":".$array[$i+3].":".$array[$i+4];
+                        $location=$array[$i+2]." ".$array[$i+3]." ".$array[$i+4];
                         $i+=4;
                     }elseif($array[$i]=="Chromosome"){
-                        $location=$array[$i+1].":".$array[$i+2].":".$array[$i+3];
+                        $location=$array[$i+1]." ".$array[$i+2]." ".$array[$i+3];
                         $i+=3;
                     }elseif ($array[$i]=="gene") {
                         $geneId=$array[$i+1];
@@ -498,7 +500,7 @@ function parseFile ($file){
                 $flag=2;
                 $seq="";
                 $id=$array[3];
-                $location=$array[5].":".$array[6].":".$array[7];
+                $location=$array[5]." ".$array[6]." ".$array[7];
 
                 //value insertion
                 $query="INSERT INTO cds VALUES (DEFAULT, :cdsId, :chromid, :loc, :seq);";

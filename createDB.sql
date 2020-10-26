@@ -75,59 +75,6 @@ UPDATE users
 SET usertype='admin', isApproved=1
 WHERE email='admin@email.com';
 
-/* old tables
-CREATE TABLE users (
-            id SERIAL,
-            email VARCHAR(50) UNIQUE,
-            pswd VARCHAR(500),
-            phone VARCHAR(15),
-            firstName VARCHAR(100),
-            lastName VARCHAR(100),
-            userType VARCHAR(15),
-            isApproved SMALLINT DEFAULT 0,
-            lastLogin VARCHAR(20),
-            userRole VARCHAR(20),
-            PRIMARY KEY(id)
-        );
-
-
-CREATE TABLE genome (
-    id SERIAL,
-    GeneID VARCHAR UNIQUE,
-    loc VARCHAR,
-    sequence VARCHAR,
-    PRIMARY KEY(id)
-);
-CREATE TABLE cds (
-    id SERIAL,
-    cdsId VARCHAR UNIQUE, 
-    seqId VARCHAR,
-    location VARCHAR, 
-    geneId VARCHAR,
-    geneType VARCHAR, 
-    transcriptType VARCHAR, 
-    symbol VARCHAR,
-    description VARCHAR,
-    sequence VARCHAR,
-    PRIMARY KEY(id),
-    FOREIGN KEY(seqId) REFERENCES genome(GeneId)
-);
-CREATE TABLE pep (
-    id SERIAL,
-    pepId VARCHAR UNIQUE,
-    seqId VARCHAR,
-     location VARCHAR, 
-    geneId VARCHAR,
-    transcript VARCHAR,
-    geneType VARCHAR, 
-    transcryptType VARCHAR, 
-    symbol VARCHAR,
-    description VARCHAR,
-    sequence VARCHAR,
-    PRIMARY KEY(id),
-    FOREIGN KEY(seqID) REFERENCES genome(GeneID),
-    FOREIGN KEY(geneId) REFERENCES cds(geneId),
-    FOREIGN KEY(pepId) REFERENCES cds(cdsID)
-
-);
-*/
+/*Query on text Search*/
+select pepid from pep, annot where pepid=annotid and to_tsvector('english',  pepid) @@ to_tsquery('english', 'AAN78501');
+select pepid from pep, annot where pepid=annotid and to_tsvector('english',  pepid||' '|| symbol) @@ to_tsquery('english', 'thrL & AAN78501');

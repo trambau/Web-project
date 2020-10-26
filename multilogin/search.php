@@ -13,6 +13,9 @@ if (!isLoggedIn()) {
     <style>
     .wrapper{ width: 350px; padding: 20px; }
     </style>
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/minified/jquery-ui.min.css" type="text/css" /> 
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.min.js"></script>  
 </header>
 <title>Search</title>
 <body>
@@ -34,6 +37,21 @@ function yesnoCheck(that) {
 <div class="wrapper">
 <h2>Search complete  genome or peptides/genes</h2>
 <form action="results.php" method="post">
+    <div class="form-group">
+        <label>Name:</label> 
+        <input type="text" value="" class="form-control" name="name" id="name" placeholder="Esche...">
+    </div>
+    <script type="text/javascript">
+$(function() {
+    //autocomplete
+    $("#name").autocomplete({
+        source: "autocomplete.php",
+        minLength: 1
+    });                
+
+});
+</script>
+
     <div class="form-group">
         <label>ID genome:</label> 
         <input type="text" value="" class="form-control" name="genomeID" placeholder="ASM...">
@@ -64,11 +82,19 @@ function yesnoCheck(that) {
         </div>
         <div class="form-group">
             <label>Gene biotype</label> 
-            <input type="text" name="genebiotype" value="" class="form-control" placeholder="ex:protein_coding">
+            <input type="text" name="geneBiotype" value="" class="form-control" placeholder="ex:protein_coding">
+        </div>
+        <div class="form-group">
+            <label>Transcript</label> 
+            <input type="text" name="trans" value="" class="form-control" placeholder="ex:AAN78501">
         </div>
         <div class="form-group">
             <label>Transcript biotype</label> 
             <input type="text" name="transBioType" value="" class="form-control" placeholder="ex:protein_coding">
+        </div>
+        <div class="form-group">
+            <label>Symbole</label> 
+            <input type="text" name="symbole" value="" class="form-control" placeholder="ex:THR...">
         </div>
         <div class="form-group">
             <label>Description</label> 

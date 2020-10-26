@@ -65,7 +65,8 @@ if(isset($_GET['uid'])){
 </head>
 <body>
 <div class="topnav">
-<div style="float:left" class="dropdown">
+<div><h2 style="float:inline-start;color:azure">LOGO</h2></div>
+<div style="float:left; size:50px" class="dropdown">
 			<div class="dropbtn">Menu</div>
 		<div class="dropdown-content">
 			<a href="#">Link 1</a>
