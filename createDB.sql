@@ -78,3 +78,9 @@ WHERE email='admin@email.com';
 /*Query on text Search*/
 select pepid from pep, annot where pepid=annotid and to_tsvector('english',  pepid) @@ to_tsquery('english', 'AAN78501');
 select pepid from pep, annot where pepid=annotid and to_tsvector('english',  pepid||' '|| symbol) @@ to_tsquery('english', 'thrL & AAN78501');
+SELECT id, chromid, name from genome where to_tsvector('english', chromid ||' '|| name ||' '|| loc) @@ plainto_tsquery();
+
+
+SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery('new')
+INTERSECT 
+SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE pep.sequence ILIKE '%%';

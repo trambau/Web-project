@@ -1,4 +1,5 @@
 <?php
+session_start();
 include('functions.php');
 if (!isLoggedIn()) {
     $_SESSION['msg'] = "You must log in first";
@@ -6,70 +7,39 @@ if (!isLoggedIn()) {
 }
 
 $seq_er='';
+
 $type=$_POST['type'];
-function search(){
-    global $seq_er, $name, $genomeid, $loc, $seq, $geneid, $id, $trans, $des, $geneB, $transB, $def, $symbole;
-    $name=trim($_POST['name']);
-    $genomeid=trim($_POST['genomeID']);
-    $loc=trim($_POST['location']);
-    $seq=trim($_POST['sequence']);
-    $geneid=trim($_POST['geneID']);
-    $id=trim($_POST['id']);
-    $trans=trim($_POST['trans']);
-    $des=trim($_POST['description']);
-    $geneB=trim($_POST['geneBiotype']);
-    $transB=trim($_POST['transBiotype']);
-    $def=trim($_POST['description']);
-    $symbole=trim($_POST['symbole']);
-    
-    //check sequnece length
-    if(strlen($seq) < 3  && !(empty($seq))){
-        $seq_er = "The seq must have at least 3 characters.";
-    }
-    //check if there is an error with the sequence
-    if(empty($seq_er)){
-        global $type;
-        if($type=="genome"){
-            $res=genomeSearch($name, $loc, $genomeid, $seq);
-        }else{  
-            $res=pepSearch();
-        }
-        return $res;
-    }
-    
+$_SESSION['type']=$type;
+global $seq_er, $name, $genomeid, $loc, $seq, $geneid, $id, $trans, $des, $geneB, $transB, $def, $symbole;
+$name=trim($_POST['name']);
+$_SESSION['name']=$name;
+$genomeid=trim($_POST['genomeID']);
+$_SESSION['genomeid']=$genomeid;
+$loc=trim($_POST['location']);
+$_SESSION['loc']=$loc;
+$seq=trim($_POST['sequence']);
+$_SESSION['seq']=$seq;
+$geneid=trim($_POST['geneID']);
+$_SESSION['geneid']=$geneid;
+$id=trim($_POST['id']);
+$_SESSION['id']=$id;
+$trans=trim($_POST['trans']);
+$_SESSION['trans']=$trans;
+$des=trim($_POST['description']);
+$_SESSION['des']=$des;
+$geneB=trim($_POST['geneBiotype']);
+$_SESSION['geneB']=$geneB;
+$transB=trim($_POST['transBiotype']);
+$_SESSION['transB']=$transB;
+$symbole=trim($_POST['symbole']);
+$_SESSION['symbole']=$symbole;
+if(strlen($seq) < 3  && !(empty($seq))){
+    $seq_er = "The seq must have at least 3 characters.";
 }
-function genomeSearch($name, $loc, $genomeid, $seq){
-    global $myPDO;
-    $array=array($name, $loc, $genomeid);
-    $search='';
-    foreach($array as $val){
-        if(!(empty($val)) && !(empty($search))){
-            $search.=' & '.$val; 
-        }elseif(!(empty($val)) && empty($search)){
-            $search=$val;
-        }
+if(empty($seq_er)){
+    if(isset($_POST['search_btn'])){
+        header('location: results.php');
     }
-    $query="SELECT id, chromid, name from genome where to_tsvector('english', chromid ||' '|| name ||' '|| loc) @@ plainto_tsquery(:par);";
-    try{
-        $stmt=$myPDO->prepare($query);
-        $stmt->bindParam(":par", $search);
-        $stmt->execute();
-        $res=$stmt;
-       // $res=$stmt->fetchAll();
-    }catch(PDOException $e){
-        die($e->getMessage());
-    }
-    return $res;
-}
-function pepSearch(){
-    global $myPDO;
-    $query="SELECT id, ";
-}
-
-
-$res=search();
-if(!empty($res)){
-    header('location: results.php');
 }
 ?>
 <!DOCTYPE html>

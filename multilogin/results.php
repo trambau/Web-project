@@ -1,71 +1,139 @@
 <?php
+session_start();
 include('functions.php');
 
 if (!isLoggedIn()) {
     $_SESSION['msg'] = "You must log in first";
     header('location: login.php');
 }
-/*  
-$type=$_POST['type'];
+  
+$type=$_SESSION['type'];
 function search(){
-    $name=trim($_POST['name']);
-    $genomeid=trim($_POST['genomeID']);
-    $loc=trim($_POST['location']);
-    $seq=trim($_POST['sequence']);
-    $des=trim($_POST['description']);
-    $geneB=trim($_POST['geneBiotype']);
-    $transB=trim($_POST['transBiotype']);
-    $def=trim($_POST['']);
-    //check sequnece length
-    if(strlen($seq) < 3  && !(empty($seq))){
-        $seq_er = "The seq must have atleast 3 characters.";
-    }
+    $name=$_SESSION['name'];
+    $genomeid=$_SESSION['genomeid'];
+    $loc=$_SESSION['loc'];
+    $seq=$_SESSION['seq'];
+    $geneid=$_SESSION['geneid'];
+    $id=$_SESSION['id'];
+    $trans=$_SESSION['trans'];
+    $des=$_SESSION['des'];
+    $geneB=$_SESSION['geneB'];
+    $transB=$_SESSION['transB'];
+    $symbole=$_SESSION['symbole'];
     //check if there is an error with the sequence
-    if(empty($seq_er)){
         global $type;
         if($type=="genome"){
             $res=genomeSearch($name, $loc, $genomeid, $seq);
         }else{  
-            $res=pepSearch();
+            $res=pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid);
         }
         return $res;
-    }
     
 }
 function genomeSearch($name, $loc, $genomeid, $seq){
     global $myPDO;
-    $array=array($name, $loc, $genomeid);
-    $search='';
-    foreach($array as $val){
-        if(!(empty($val)) && !(empty($search))){
-            $search.=' & '.$val; 
-        }elseif(!(empty($val)) && empty($search)){
-            $search=$val;
+    if(empty($name) && empty($loc) && empty($seq) && empty($genomeid)){
+        $query="SELECT id, chromid, name from genome;";
+        try{
+            $stmt=$myPDO->prepare($query);
+            $stmt->execute();
+            $res=$stmt;
+        }catch(PDOException $e){
+            die($e->getMessage());
+        }
+        
+    }else{
+        $array=array($name, $loc, $genomeid);
+        $search='';
+        $seq='%'.$seq.'%';
+        foreach($array as $val){
+            if(!(empty($val)) && !(empty($search))){
+                $search.=' & '.$val; 
+            }elseif(!(empty($val)) && empty($search)){
+                $search=$val;
+            }
+        }
+        //check if search not empty 
+        if(!empty($search)){
+            $query="SELECT id, chromid, name FROM genome WHERE to_tsvector('english', chromid ||' '|| name ||' '|| loc) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT id, chromid, name FROM genome WHERE sequence ILIKE :seq;";
+        }else{
+            $query="SELECT id, chromid, name FROM genome WHERE sequence ILIKE :seq;";
+        }
+        try{
+            $stmt=$myPDO->prepare($query);
+            $stmt->bindParam(":par", $search);
+            $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
+            $stmt->execute();
+            $res=$stmt;
+        }catch(PDOException $e){
+            die($e->getMessage());
         }
     }
-    $query="SELECT id, chromid, name from genome where to_tsvector('english', chromid ||' '|| name ||' '|| loc) @@ plainto_tsquery(:par);";
-    try{
-        $stmt=$myPDO->prepare($query);
-        $stmt->bindParam(":par", $search);
-        $stmt->execute();
-        $res=$stmt;
-       // $res=$stmt->fetchAll();
-    }catch(PDOException $e){
-        die($e->getMessage());
-    }
-
 
 
 
     return $res;
 }
-function pepSearch(){
+function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid){
     global $myPDO;
-    $query="SELECT id, ";
+    if(empty($name) && empty($loc) && empty($seq)&& empty($geneid)&& empty($geneB)&& empty($des)&& empty($id)&& empty($trans)&& empty($transB)&& empty($symbole) && empty($genomeid)){
+        $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid;";
+        try{
+            $stmt=$myPDO->prepare($query);
+            $stmt->execute();
+            $res=$stmt;
+        }catch(PDOException $e){
+            die($e->getMessage());
+        }
+    }else{
+        $array=array($name, $loc, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid);
+        $search='';
+        //get the sequence ready for the query
+        $seq='%'.$seq.'%';
+        foreach($array as $val){
+            if(!(empty($val)) && !(empty($search))){
+                $search.=' & '.$val; 
+            }elseif(!(empty($val)) && empty($search)){
+                $search=$val;
+            }
+        }
+        //check if sequence is nucleotids or peptides
+        if(preg_match('/[^atgc%]/i', $seq)){
+            //check if there are input parameters other than sequence
+            if(!empty($search)){
+            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.sequence ILIKE :seq;";
+            }else{
+                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.sequence ILIKE :seq;";
+            }
+        }else{
+            //check if there are input parameters other than sequence
+            if(!empty($search)){
+            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE cds.sequence ILIKE :seq AND cdsid=pepid;";
+            }else{
+                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE cds.sequence ILIKE :seq AND cdsid=pepid;";
+            }
+        }
+        try{
+            $stmt=$myPDO->prepare($query);
+            //check if parameter needed
+            if(!empty($search)){
+            $stmt->bindParam(":par", $search);
+            }
+            $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
+            $stmt->execute();
+            $res=$stmt;
+        }catch(PDOException $e){
+            die($e->getMessage());
+        }
+    }
+    
+return $res;
 }
 $res=search();
-header('results.php');
-*/
+
 ?>
 
 <!DOCTYPE html>
@@ -82,7 +150,9 @@ Results
         <a style="float:right;color:red" href="home.php?logout='1'">logout</a>
         <h2 style="color:azure">LOGO</h2>
     </div>
+    
     <?php
+    //Genome Type
     if($type=="genome"){
     ?>
 <table class="table table-striped table-advance table-hover">
@@ -99,7 +169,7 @@ Results
     <?php 
 	while($row=$res->fetch(PDO::FETCH_ASSOC)){
 	?>
-	<tr onclick="location.href='view.php?id=<?php echo $row['id'];?>'">
+	<tr onclick="location.href='view.php?id=<?php echo $row['id'];?>?type=genome'">
             <td><?php echo $row['id'];?></td>
             <td><?php echo $row['chromid'];?></td>
             <td><?php echo $row['name'];?></td>
@@ -113,7 +183,41 @@ Results
 
 <?php 
 } //end if type==genome
-?>
 
+//type=pep
+else{
+?>
+<table class="table table-striped table-advance table-hover">
+	<h4><i class="fa fa-angle-right"></i> Results </h4>
+		<br>
+		<thead>
+		<tr>
+            <th>Name</th>
+			<th>Peptide ID</th>
+            <th>Chromosome ID</th>
+            <th>Location</th>
+		</tr>
+		</thead>
+<tbody>
+    <?php 
+	while($row=$res->fetch(PDO::FETCH_ASSOC)){
+	?>
+	<tr onclick="location.href='view.php?id=<?php echo $row['id'];?>?type=pep'">
+            <td><?php echo $row['name'];?></td>
+            <td><?php echo $row['pepid'];?></td>
+            <td><?php echo $row['chromid'];?></td>
+            <td><?php echo $row['location'];?></td>
+    </tr>
+    <?php
+    //end while
+    }
+    ?>
+</tbody>
+</table>
+
+<?php
+//end if type=pep/cds
+}
+?>
 </body>
 </html>
