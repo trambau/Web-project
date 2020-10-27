@@ -169,7 +169,7 @@ Results
     <?php 
 	while($row=$res->fetch(PDO::FETCH_ASSOC)){
 	?>
-	<tr onclick="location.href='view.php?id=<?php echo $row['id'];?>?type=genome'">
+	<tr onclick="location.href='view.php?id=<?php echo $row['id'];?>&type=genome'">
             <td><?php echo $row['id'];?></td>
             <td><?php echo $row['chromid'];?></td>
             <td><?php echo $row['name'];?></td>
@@ -202,7 +202,7 @@ else{
     <?php 
 	while($row=$res->fetch(PDO::FETCH_ASSOC)){
 	?>
-	<tr onclick="location.href='view.php?id=<?php echo $row['id'];?>?type=pep'">
+	<tr onclick="location.href='view.php?id=<?php echo $row['id'];?>&type=pep'">
             <td><?php echo $row['name'];?></td>
             <td><?php echo $row['pepid'];?></td>
             <td><?php echo $row['chromid'];?></td>
