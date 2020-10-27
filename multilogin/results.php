@@ -5,6 +5,7 @@ if (!isLoggedIn()) {
     $_SESSION['msg'] = "You must log in first";
     header('location: login.php');
 }
+/*  
 $type=$_POST['type'];
 function search(){
     $name=trim($_POST['name']);
@@ -15,13 +16,21 @@ function search(){
     $geneB=trim($_POST['geneBiotype']);
     $transB=trim($_POST['transBiotype']);
     $def=trim($_POST['']);
-    global $type;
-    if($type=="genome"){
-        $res=genomeSearch($name, $loc, $genomeid, $seq);
-    }else{
-        $res=pepSearch();
+    //check sequnece length
+    if(strlen($seq) < 3  && !(empty($seq))){
+        $seq_er = "The seq must have atleast 3 characters.";
     }
-    return $res;
+    //check if there is an error with the sequence
+    if(empty($seq_er)){
+        global $type;
+        if($type=="genome"){
+            $res=genomeSearch($name, $loc, $genomeid, $seq);
+        }else{  
+            $res=pepSearch();
+        }
+        return $res;
+    }
+    
 }
 function genomeSearch($name, $loc, $genomeid, $seq){
     global $myPDO;
@@ -55,18 +64,8 @@ function pepSearch(){
     $query="SELECT id, ";
 }
 $res=search();
-
-class result{
-    
-
-
-}
-
-
-
-
-
-
+header('results.php');
+*/
 ?>
 
 <!DOCTYPE html>

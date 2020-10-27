@@ -5,6 +5,72 @@ if (!isLoggedIn()) {
     header('location: login.php');
 }
 
+$seq_er='';
+$type=$_POST['type'];
+function search(){
+    global $seq_er, $name, $genomeid, $loc, $seq, $geneid, $id, $trans, $des, $geneB, $transB, $def, $symbole;
+    $name=trim($_POST['name']);
+    $genomeid=trim($_POST['genomeID']);
+    $loc=trim($_POST['location']);
+    $seq=trim($_POST['sequence']);
+    $geneid=trim($_POST['geneID']);
+    $id=trim($_POST['id']);
+    $trans=trim($_POST['trans']);
+    $des=trim($_POST['description']);
+    $geneB=trim($_POST['geneBiotype']);
+    $transB=trim($_POST['transBiotype']);
+    $def=trim($_POST['description']);
+    $symbole=trim($_POST['symbole']);
+    
+    //check sequnece length
+    if(strlen($seq) < 3  && !(empty($seq))){
+        $seq_er = "The seq must have at least 3 characters.";
+    }
+    //check if there is an error with the sequence
+    if(empty($seq_er)){
+        global $type;
+        if($type=="genome"){
+            $res=genomeSearch($name, $loc, $genomeid, $seq);
+        }else{  
+            $res=pepSearch();
+        }
+        return $res;
+    }
+    
+}
+function genomeSearch($name, $loc, $genomeid, $seq){
+    global $myPDO;
+    $array=array($name, $loc, $genomeid);
+    $search='';
+    foreach($array as $val){
+        if(!(empty($val)) && !(empty($search))){
+            $search.=' & '.$val; 
+        }elseif(!(empty($val)) && empty($search)){
+            $search=$val;
+        }
+    }
+    $query="SELECT id, chromid, name from genome where to_tsvector('english', chromid ||' '|| name ||' '|| loc) @@ plainto_tsquery(:par);";
+    try{
+        $stmt=$myPDO->prepare($query);
+        $stmt->bindParam(":par", $search);
+        $stmt->execute();
+        $res=$stmt;
+       // $res=$stmt->fetchAll();
+    }catch(PDOException $e){
+        die($e->getMessage());
+    }
+    return $res;
+}
+function pepSearch(){
+    global $myPDO;
+    $query="SELECT id, ";
+}
+
+
+$res=search();
+if(!empty($res)){
+    header('location: results.php');
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -36,10 +102,10 @@ function yesnoCheck(that) {
 </script>
 <div class="wrapper">
 <h2>Search complete  genome or peptides/genes</h2>
-<form action="results.php" method="post">
+<form action="<?php $_SERVER['PHP_SELF'];?>" method="post">
     <div class="form-group">
         <label>Name:</label> 
-        <input type="text" value="" class="form-control" name="name" id="name" placeholder="Esche...">
+        <input type="text" value="<?php echo $name;?>" class="form-control" name="name" id="name" placeholder="Esche...">
     </div>
     <script type="text/javascript">
 $(function() {
@@ -54,15 +120,16 @@ $(function() {
 
     <div class="form-group">
         <label>ID genome:</label> 
-        <input type="text" value="" class="form-control" name="genomeID" placeholder="ASM...">
+        <input type="text" value="<?php echo $genomeid;?>" class="form-control" name="genomeID" placeholder="ASM...">
     </div>
     <div class="form-group">
         <label>Location:</label> 
-        <input type="text" value="" name="location" placeholder="1:546..." class="form-control">
+        <input type="text" value="<?php echo $loc;?>" name="location" placeholder="1:546..." class="form-control">
     </div>
-    <div class="form-group">
+    <div class="form-group <?php echo (!empty($seq_er)) ? 'has-error' : ''; ?>">
         <label>Sequence</label>
-        <textarea name="sequence" class="form-control" placeholder="AGCTTTT..."></textarea>
+        <textarea name="sequence" class="form-control" placeholder="AGCTTTT..."><?php echo $seq;?></textarea>
+        <span class="help-block"><?php echo $seq_er; ?></span>
     </div>
     <label>Output type</label>
     <select name="type" class="form-control mx-sm-3" onchange="yesnoCheck(this);">
@@ -74,31 +141,31 @@ $(function() {
     <div id="ifYes" style="display: none;">
         <div class="form-group">
             <label>Gene Id</label>
-            <input type="text" name="geneID" class="form-control" placeholder="ex:c5491">
+            <input type="text" name="geneID" value="<?php echo $gene;?>" class="form-control" placeholder="ex:c5491">
         </div>
         <div class="form-group">
             <label>ID</label> 
-            <input type="text" name="id" value="" class="form-control" placeholder="ex:AAN78501">
+            <input type="text" name="id" value="<?php echo $id;?>" class="form-control" placeholder="ex:AAN78501">
         </div>
         <div class="form-group">
             <label>Gene biotype</label> 
-            <input type="text" name="geneBiotype" value="" class="form-control" placeholder="ex:protein_coding">
+            <input type="text" name="geneBiotype" value="<?php echo $geneB;?>" class="form-control" placeholder="ex:protein_coding">
         </div>
         <div class="form-group">
             <label>Transcript</label> 
-            <input type="text" name="trans" value="" class="form-control" placeholder="ex:AAN78501">
+            <input type="text" name="trans" value="<?php echo $trans;?>" class="form-control" placeholder="ex:AAN78501">
         </div>
         <div class="form-group">
             <label>Transcript biotype</label> 
-            <input type="text" name="transBioType" value="" class="form-control" placeholder="ex:protein_coding">
+            <input type="text" name="transBioType" value="<?php echo $transB;?>" class="form-control" placeholder="ex:protein_coding">
         </div>
         <div class="form-group">
             <label>Symbole</label> 
-            <input type="text" name="symbole" value="" class="form-control" placeholder="ex:THR...">
+            <input type="text" name="symbole" value="<?php echo $symbole;?>" class="form-control" placeholder="ex:THR...">
         </div>
         <div class="form-group">
             <label>Description</label> 
-            <input type="text" name="description" value="" class="form-control" placeholder="ex:Hypothetical protein">
+            <input type="text" name="description" value="<?php echo $des;?>" class="form-control" placeholder="ex:Hypothetical protein">
         </div>
     </div>
     <div class="form-group">
