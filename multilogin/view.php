@@ -23,7 +23,7 @@ if(isset($_GET['id']) && isset($_GET['type'])){
 
 function getName($id){
     global $myPDO;
-    $query="SELECT name FROM genome, pep WHERE pep.chromid=genome.chromid AND pepid=:id;";
+    $query="SELECT name, genome.id FROM genome, pep WHERE pep.chromid=genome.chromid AND pepid=:id;";
     try{
         $stmt=$myPDO->prepare($query);
         $stmt->bindParam(":id", $id, PDO::PARAM_STR);
@@ -32,7 +32,7 @@ function getName($id){
     }catch(PDOException $e){
         die($e->getMessage());
     }
-    return $res['name'];
+    return $res;
 }
 function getCDSseq($id){
     global $myPDO;
@@ -54,7 +54,7 @@ function getCDSseq($id){
 View
 </title>
 <header>
-<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </header>
 <body>
 <div class="header" style="background-color:dodgerblue">
@@ -67,13 +67,13 @@ View
         function addNewlines(str) {
             var result = '';
             while (str.length > 0) {
-                result += str.substring(0, 100) + '\n';
-                str = str.substring(100);
+                result += str.substring(0, 200) + '\n';
+                str = str.substring(200);
             }
             return result;
         }
     </script>
-<div class="col-12 col-md-4 col-xl-8 py-md-5 bd-content">
+<div class="col-12 col-md-4 col-xl-15 py-md-15 bd-content">
 <?php
 //check if genome
 if($type=="genome"){
@@ -99,27 +99,35 @@ if($type=="genome"){
             ?>
             </td>
         </tr>
+        <tr>
+            <th>Sequence</th>
+            <td>
+                <table>
+                <tr>
+                <span style="width:400px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
+                <?php 
+                
+                echo $res['sequence'];
+                
+                ?>
+                </span>
+                </tr>
+                </table>
+            </td>
+        </tr>
     </tbody>
 
 </table>
-<table>
-    <tbody>
-        <tr>
-        <span style="width:200px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
-   <?php// echo $res['sequence'];?>
-        </span>
-        </tr>
-    </tbody>
-</table>
+
 <?php
 //end if type genome
 }else{
 ?>
-<table class="table table-bordered table-stripped">
+<table class="table table-bordered table-hover">
     <tbody>
         <tr>
             <th>Strain</th>
-            <td><?php  echo(getName($res['pepid'])); ?></td>
+            <td onclick="location.href='view.php?id=<?php echo(getName($res['pepid'])['id']);?>&type=genome'"><u style="color:darkblue"><?php  echo(getName($res['pepid'])['name']); ?></u></td>
         </tr>
         <tr>    
             <th>protein ID</th>
@@ -127,7 +135,7 @@ if($type=="genome"){
         </tr>
         <tr>    
             <th>Chromosome ID</th>
-            <td><?php echo $res['chromid'];?></td>
+            <td onclick="location.href='view.php?id=<?php echo(getName($res['pepid'])['id']);?>&type=genome'"><u style="color:darkblue"><?php echo $res['chromid'];?></u></td>
         </tr>
         <tr>    
             <th>Transcript</th>
@@ -158,7 +166,7 @@ if($type=="genome"){
         <td>
             <table>
             <tr>
-            <span style="width:200px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
+            <span style="width:300px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
             <?php echo $res['sequence'];?>
             </span>
             </tr>
@@ -170,7 +178,7 @@ if($type=="genome"){
         <td>
             <table>
             <tr>
-            <span style="width:200px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
+            <span style="width:300px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
             <?php echo getCDSseq($res['pepid']);?>
             </span>
             </tr>
