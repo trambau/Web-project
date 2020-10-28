@@ -5,6 +5,7 @@ if (!isLoggedIn()) {
 	$_SESSION['msg'] = "You must log in first";
 	header('location: login.php');
 }
+echo $_SESSION['user']['id'];
 //update the annotator in the annotaion table
 if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
 	global $myPDO;
@@ -240,7 +241,7 @@ $(function() {
 
 						<?php
 						//end validator
-						}elseif(isAnnotator()){
+						}elseif(isAnnotator()){//Annotator display
 							?>
 <div class="table-responsive col-md-6">
 	<table class="table table-striped table-advance table-hover">
@@ -262,11 +263,12 @@ $(function() {
 		<tbody>
 			<?php
 			global $myPDO;
-			$query="SELECT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description 
+			$query="SELECT DISTINCT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description 
 			FROM annot, pep, genome, users 
-			WHERE annotid=pepid AND pep.chromid=genome.chromid AND users.id=annotator AND validated=0 AND annotator IS NOT NULL;";
+			WHERE annotid=pepid AND pep.chromid=genome.chromid AND :id=annotator AND validated=0;";
 			try{
 				$stmt=$myPDO->prepare($query);
+				$stmt->bindParam(":id", $_SESSION['user']['id'], PDO::PARAM_STR);
 				$stmt->execute();
 				$stmt;
 			}catch(PDOException $e){
@@ -277,7 +279,6 @@ $(function() {
 			<tr>
 				<td><?php echo $row['annotid'];?></td>
 				<td><?php echo $row['name'];?></td>
-				<td><?php echo $row['email'];?></td>
 				<td><?php echo $row['geneid'];?></td>
 				<td><?php echo $row['genetype'];?></td>
 				<td><?php echo $row['transcript'];?></td>
@@ -288,16 +289,6 @@ $(function() {
 					<a href="index.php?annotid=<?php echo $row['annotid'];?>">
 					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
 					</a>
-				</td>
-				<td>
-	<script>
-	//take input from user
-	function getComment(){
-	var message=window.prompt("Write a comment for the annotator.");
-	window.location.href = "index.php?comment="+message+"&annotationid="+"<?php echo $row['annotid'];?>";
-	}
-	</script>
-				<button class="btn btn-danger btn-xs" onClick="getComment()"><i class="fa fa-trash-o "></i>Reject</button>
 				</td>
 			</tr>
 			<?php	
