@@ -84,6 +84,10 @@ if($type=="genome"){
             <th>Strain</th>
             <td><?php echo $res['name']; ?></td>
         </tr>
+        <tr>
+            <th>Chromosome ID</th>
+            <td><?php echo $res['chromid'];?></td>
+        </tr>
         <tr>    
             <th>Number of genes</th>
             <td><?php
@@ -137,6 +141,10 @@ if($type=="genome"){
             <th>Chromosome ID</th>
             <td onclick="location.href='view.php?id=<?php echo(getName($res['pepid'])['id']);?>&type=genome'"><u style="color:darkblue"><?php echo $res['chromid'];?></u></td>
         </tr>
+        
+        <?php 
+        //check if the annotations are valid.
+        if($res['validated']==1){?>
         <tr>    
             <th>Transcript</th>
             <td><?php echo $res['transcript'];?></td>
@@ -161,6 +169,10 @@ if($type=="genome"){
             <th>Description</th>
             <td><?php echo $res['description'];?></td>
         </tr>
+        <?php
+        //end if annotaions valid.
+        }
+        ?>
         <tr>    
         <th>Peptide sequence</th>
         <td>

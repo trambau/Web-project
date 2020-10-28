@@ -4,15 +4,13 @@ session_start();
 
 // connect to database
 try{
-    /*
     $datab="db";
     $user="postgres";
     $dbpswd="postgres";
-    */
-    
+    /*
     $datab="sample";
     $user="trambaud";
-    $dbpswd="trambaud";
+    $dbpswd="trambaud";*/
     $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
     $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -280,7 +278,7 @@ function isAdmin()
 }
 //check if the current user is a validator
 function isValidator(){
-    if (isset($_SESSION['user']) && $_SESSION['user']['userrole'] == 'validator' ) {
+    if (isset($_SESSION['user']) && ($_SESSION['user']['userrole'] == 'validator' || isAdmin())) {
 		return true;
 	}else{
 		return false;
@@ -288,7 +286,7 @@ function isValidator(){
 }
 //check if the current user is an annotator
 function isAnnotator(){
-    if (isset($_SESSION['user']) && $_SESSION['user']['userrole'] == 'annotator' ) {
+    if (isset($_SESSION['user']) && ($_SESSION['user']['userrole'] == 'annotator' || isAdmin() || isValidator())) {
 		return true;
 	}else{
 		return false;

@@ -45,7 +45,7 @@ if(empty($seq_er)){
 <!DOCTYPE html>
 <html>
 <header>
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
     .wrapper{ width: 350px; padding: 20px; }
     </style>
@@ -97,11 +97,11 @@ $(function() {
         <input type="text" value="<?php echo $loc;?>" name="location" placeholder="1:546..." class="form-control">
     </div>
     <div class="form-group <?php echo (!empty($seq_er)) ? 'has-error' : ''; ?>">
-        <label>Sequence</label>
+        <label>Sequence:</label>
         <textarea name="sequence" class="form-control" placeholder="AGCTTTT..."><?php echo $seq;?></textarea>
         <span class="help-block"><?php echo $seq_er; ?></span>
     </div>
-    <label>Output type</label>
+    <label>Output type:</label>
     <select name="type" class="form-control mx-sm-3" onchange="yesnoCheck(this);">
         <option selected="selected" value="genome" name="genome">Genome</option>
         <option value="other" name="other">Gene/peptide</option>

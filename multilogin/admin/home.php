@@ -20,7 +20,7 @@ if(isset($_GET['id'])){
 		$stmt=$myPDO->prepare($query);
 		test();
 
-		$stmt->bindParam(":id", $id, PDO::PARAM_STR);
+		$stmt->bindParam(":id", $id, PDO::PARAM_INT);
 		
 		$stmt->execute();
 		
