@@ -89,4 +89,4 @@ SELECT DISTINCT annotid, name, pep.id as pid, genome.id as gid, geneid, transcri
 			FROM annot, pep, genome, users 
 			WHERE annotid=pepid AND pep.chromid=genome.chromid AND annotator=80 AND validated=0;
 
-        select email, annotid, validated from annot, users where annotator=users.id;
+ SELECT count(pep.id) FROM pep, genome WHERE pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery('%new%');

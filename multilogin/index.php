@@ -5,8 +5,6 @@ if (!isLoggedIn()) {
 	$_SESSION['msg'] = "You must log in first";
 	header('location: login.php');
 }
-
-echo $_SESSION['user']['id'];
 //update the annotator in the annotaion table
 if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
 	global $myPDO;
@@ -87,6 +85,7 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 		die($e->getMessage());
 	}
 }
+//-------------------------HTML----------------------------------
 ?>
 
 <!DOCTYPE html>
@@ -128,7 +127,6 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 		<?php endif ?>
 		<!-- logged in user information -->
 		<div class="profile_info">
-			<img src="images/user_profile.png"  >
 
 			<div>
 				<?php  if (isset($_SESSION['user'])) : ?>
@@ -139,11 +137,15 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 						<br>
 						<a href="index.php?logout='1'" style="color: red;">logout</a>
 					</small>
+					<?php endif ?>
+			</div>
+		</div>
 
 <!-- Display for Validator-->
 
 						<?php if(isValidator()){?>
 	<div class="row">
+		<!--
 	<div class="table-responsive col-md-4">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i> Sequences in wait</h4>
@@ -158,10 +160,10 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 		</tr>
 		</thead>
 	<tbody>
-	<!-- Display the non assigned sequences  !!!VALIDATE=0 TO REMOVE(MAYBE)-->
+	<!-- Display the non assigned sequences 
 	<?php 
 	global $myPDO;
-	$query="SELECT name, pepid, pep.chromid FROM annot, pep, genome where annotid=pepid and pep.chromid=genome.chromid and validated=0 and annotator IS NULL;";
+	$query="SELECT name, pepid, pep.chromid FROM annot, pep, genome where annotid=pepid and pep.chromid=genome.chromid and isannotated=0 and annotator IS NULL;";
 	$stmt=$myPDO->prepare($query);
 	$stmt->execute();
 	while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
@@ -203,6 +205,17 @@ $(function() {
 </tbody>
 </table >
 </div>
+-->
+<!---------------------IFRAME PART---------------->
+<div style="margin:15px">
+<h4><i class="fa fa-angle-right"></i> Sequences in wait</h4>
+<iframe src="./validator/assign.php" height="700" width="900" frameborder="0" marginwidth="10" marginheight="0"></iframe>
+</div>
+<div>
+<h4><i class="fa fa-angle-right"></i>Annotations to check</h4>
+<iframe src="./validator/review.php" frameborder="0" height="700" width="1000"></iframe>
+</div>
+<!---------------------------------REVIEW-------------------
 <div class="table-responsive col-md-6">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i>Annotations to check</h4>
@@ -268,9 +281,8 @@ $(function() {
 			?>
 		</tbody>
 	</table>
-</div>
+</div>----------------------------END REVIEW------------------------------------->
 </div><!--end div row-->
-
 
 						<?php
 						//end validator
@@ -340,7 +352,7 @@ $(function() {
 	</table>
 </div>							
 
-
+<h4>TTTTTTTTTTTTTTTTTTTTTTt</h4>
 							<?php //end if annotator
 						}else{//User type user
 						?>
@@ -349,9 +361,7 @@ $(function() {
 						}//end if user
 						?>
 
-				<?php endif ?>
-			</div>
-		</div>
+			
 	</div>
 </body>
 </html>

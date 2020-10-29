@@ -74,7 +74,9 @@ function genomeSearch($name, $loc, $genomeid, $seq){
         }
         try{
             $stmt=$myPDO->prepare($query);
-            $stmt->bindParam(":par", $search);
+            if(!empty($search)){
+                $stmt->bindParam(":par", $search);
+            }
             $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
             $stmt->execute();
             $res=$stmt;
@@ -127,32 +129,50 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             //check if there are input parameters other than sequence
             if(!empty($search)){
                 //query with parameter and sequence pep
-            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq;";
+            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pep.chromid=genome.chromid AND pepid=annotid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
+            $query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
             }else{
                 //query with just the sequence pep
-                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq;";
+                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
+                $query2="SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
+
             }
         }else{
             //check if there are input parameters other than sequence
             if(!empty($search)){
                 //query with parameters and gene sequence
-            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";
+            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid LIMIT :nbres OFFSET :startat;";
+            $query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pep.id FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";    
             }else{
                 //query with the gene sequence only
-                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";
+                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid LIMIT :nbres OFFSET :startat;";
+                //query to get the number of row
+                $query2="SELECT pep.id FROM pep, cds WHERE cds.sequence ILIKE :seq AND cdsid=pepid;";
+
             }
         }
         try{
             $stmt=$myPDO->prepare($query);
+            $stmt2=$myPDO->prepare($query2);
             //check if parameter needed
             if(!empty($search)){
             $stmt->bindParam(":par", $search);
+            $stmt2->bindParam(":par", $search);
             }
             $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
+            $stmt2->bindParam(":seq", $seq, PDO::PARAM_STR);
+            $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
+            $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
             $stmt->execute();
+            $stmt2->execute();
             $res=$stmt;
+            
+            $nbrow=$stmt2->rowCount();
+            $totpage=ceil($nbrow/$nbres);
         }catch(PDOException $e){
             die($e->getMessage());
         }
@@ -174,7 +194,9 @@ Results
 <body>
 <div class="header" style="background-color:dodgerblue">
         <br>
-        <a style="float:right;color:red" href="home.php?logout='1'">logout</a>
+        <a style="float:right;color:red" href=".?logout='1'">logout</a>
+        <br>
+        <a style="color:brown" href="search.php">Search</a>
         <h2 style="color:azure">LOGO</h2>
     </div>
     
@@ -211,7 +233,7 @@ Results
 <?php 
 } //end if type==genome
 
-//type=pep
+//--------------------Display peptides-----------------
 else{
 ?>
 <table class="table table-striped table-advance table-hover">
@@ -262,7 +284,12 @@ if($page>1){
 <?php
 $i=$page;
 $pagesDisplayed=10;
+//check if there are more than one page to display
+if($totpage>1){
 $j=$totpage-$pagesDisplayed-1;
+}else{
+    $j=1;
+}
 //Check if the current page is in the last ten pages
 if($page>$j){
     //add index between the current page and 10 pages before the last page
@@ -292,6 +319,5 @@ if($page<$totpage){
 
 </ul>
 </nav>
-
 </body>
 </html>
