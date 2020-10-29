@@ -23,7 +23,7 @@ if(isset($_GET['id']) && isset($_GET['type'])){
 
 function getName($id){
     global $myPDO;
-    $query="SELECT name, genome.id FROM genome, pep WHERE pep.chromid=genome.chromid AND pepid=:id;";
+    $query="SELECT name, genome.id, isannotated FROM genome, pep WHERE pep.chromid=genome.chromid AND pepid=:id;";
     try{
         $stmt=$myPDO->prepare($query);
         $stmt->bindParam(":id", $id, PDO::PARAM_STR);
@@ -144,7 +144,7 @@ if($type=="genome"){
         
         <?php 
         //check if the annotations are valid.
-        if($res['validated']==1){?>
+        if(getName($res['pepid'])['isannotated']==1){?>
         <tr>    
             <th>Transcript</th>
             <td><?php echo $res['transcript'];?></td>

@@ -26,12 +26,12 @@ if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
 		die($e->getMessage());
 	}
 }
-//remove the annotation and put a comment 
+//REJECT the annotation and put a comment 
 if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 	global $myPDO;
 	$id=$_GET['annotationid'];
 	$com=$_GET['comment'];
-	$query="UPDATE annot SET geneid='', transcript='', genetype='', transcrypttype='', symbol='', description=:com WHERE annotid=:id;";
+	$query="UPDATE annot SET geneid='', transcript='', genetype='', transcrypttype='', symbol='', description=:com, validated=0 WHERE annotid=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
 		$stmt->bindParam(":com", $com, PDO::PARAM_STR);
@@ -41,7 +41,7 @@ if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 		die($e->getMessage());
 	}
 }
-//validated the annotations
+//SEND the annotations for review
 if(!empty($_GET['annotid'])){
 	global $myPDO;
 	$id=$_GET['annotid'];
@@ -49,6 +49,19 @@ if(!empty($_GET['annotid'])){
 	try{
 		$stmt=$myPDO->prepare($query);
 		$stmt->bindParam(":id", $id, PDO::PARAM_STR);
+		$stmt->execute();
+	}catch(PDOException $e){
+		die($e->getMessage());
+	}
+}
+//VALIDATE the annotation and put them in the DATABASE
+if(!empty($_GET['genomeid'])){
+	global $myPDO;
+	$id=$_GET['genomeid'];
+	$query="UPDATE genome SET isannotated=1 WHERE id=:id;";
+	try{
+		$stmt=$myPDO->prepare($query);
+		$stmt->bindParam(":id", $id, PDO::PARAM_INT);
 		$stmt->execute();
 	}catch(PDOException $e){
 		die($e->getMessage());
@@ -125,7 +138,7 @@ if(!empty($_GET['annotid'])){
 		</tr>
 		</thead>
 	<tbody>
-	<!-- Display the non assigned sequences-->
+	<!-- Display the non assigned sequences  !!!VALIDATE=0 TO REMOVE(MAYBE)-->
 	<?php 
 	global $myPDO;
 	$query="SELECT name, pepid, pep.chromid FROM annot, pep, genome where annotid=pepid and pep.chromid=genome.chromid and validated=0 and annotator IS NULL;";
@@ -191,10 +204,10 @@ $(function() {
 		</thead>
 		<tbody>
 			<?php
-			global $myPDO;
-			$query="SELECT annotid, name, email, geneid, transcript, genetype, transcrypttype, symbol, description 
+			global $myPDO; 			//Get the annotation needing review.
+			$query="SELECT annotid, name, genome.id as gid, email, geneid, transcript, genetype, transcrypttype, symbol, description 
 			FROM annot, pep, genome, users 
-			WHERE annotid=pepid AND pep.chromid=genome.chromid AND users.id=annotator AND validated=0 AND annotator IS NOT NULL;";
+			WHERE annotid=pepid AND pep.chromid=genome.chromid AND users.id=annotator AND validated=1 AND isannotated=0 AND annotator IS NOT NULL;";
 			try{
 				$stmt=$myPDO->prepare($query);
 				$stmt->execute();
@@ -202,7 +215,7 @@ $(function() {
 			}catch(PDOException $e){
 				die($e->getMessage());
 			}
-			while($row=$stmt->fetch()){//get the annotation values not yet validated.
+			while($row=$stmt->fetch()){
 			?>
 			<tr>
 				<td><?php echo $row['annotid'];?></td>
@@ -215,7 +228,7 @@ $(function() {
 				<td><?php echo $row['symbol'];?></td>
 				<td><?php echo $row['description'];?></td>
 				<td>
-					<a href="index.php?annotid=<?php echo $row['annotid'];?>">
+					<a href="index.php?genomeid=<?php echo $row['gid'];?>">
 					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
 					</a>
 				</td>
@@ -263,7 +276,7 @@ $(function() {
 		<tbody>
 			<?php
 			global $myPDO;
-			$query="SELECT DISTINCT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description 
+			$query="SELECT DISTINCT annotid, name, pep.id as pid, genome.id as gid, geneid, transcript, genetype, transcrypttype, symbol, description 
 			FROM annot, pep, genome, users 
 			WHERE annotid=pepid AND pep.chromid=genome.chromid AND :id=annotator AND validated=0;";
 			try{
@@ -276,17 +289,23 @@ $(function() {
 			}
 			while($row=$stmt->fetch()){//get the annotation values not yet validated.
 			?>
+			<?php echo $row['pid'];
+
+			echo $row['gid'];
+			echo "test";?>
+
 			<tr>
-				<td><?php echo $row['annotid'];?></td>
-				<td><?php echo $row['name'];?></td>
-				<td><?php echo $row['geneid'];?></td>
+			
+				<td onclick="location.href='view.php?id=<?php echo $row['pid'];?>&type=pep'"><u style=color:dark-blue"><?php echo $row['annotid'];?></u></td>
+				<td onclick="location.href='view.php?id=<?php echo $row['gid'];?>&type=genome'"><u style=color:dark-blue"><?php echo $row['name'];?></u></td>
+				<td ><?php echo $row['geneid'];?></td>
 				<td><?php echo $row['genetype'];?></td>
 				<td><?php echo $row['transcript'];?></td>
 				<td><?php echo $row['transcrypttype'];?></td>
 				<td><?php echo $row['symbol'];?></td>
 				<td><?php echo $row['description'];?></td>
 				<td>
-					<a href="index.php?annotid=<?php echo $row['annotid'];?>">
+					<a href="index.php?rid=<?php echo $$row['annotid'];?>">
 					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
 					</a>
 				</td>
