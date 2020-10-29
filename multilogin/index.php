@@ -5,6 +5,7 @@ if (!isLoggedIn()) {
 	$_SESSION['msg'] = "You must log in first";
 	header('location: login.php');
 }
+
 echo $_SESSION['user']['id'];
 //update the annotator in the annotaion table
 if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
@@ -41,10 +42,11 @@ if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 		die($e->getMessage());
 	}
 }
+
 //SEND the annotations for review
-if(!empty($_GET['annotid'])){
+if(!empty($_GET['rid'])){
 	global $myPDO;
-	$id=$_GET['annotid'];
+	$id=$_GET['rid'];
 	$query="UPDATE annot SET validated=1 WHERE annotid=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
@@ -62,6 +64,24 @@ if(!empty($_GET['genomeid'])){
 	try{
 		$stmt=$myPDO->prepare($query);
 		$stmt->bindParam(":id", $id, PDO::PARAM_INT);
+		$stmt->execute();
+	}catch(PDOException $e){
+		die($e->getMessage());
+	}
+}
+//UPDATE annotation
+if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
+	global $myPDO; 
+	$query="UPDATE annot SET geneid=:geneid, transcript=:trans, genetype=:geneT, transcrypttype=:transT, symbol=:symbol, description=:des WHERE annotid=:upid;";
+	try{
+		$stmt=$myPDO->prepare($query);
+		$stmt->bindParam(':geneid', $_POST['geneid'], PDO::PARAM_STR);
+		$stmt->bindParam(':geneT', $_POST['geneT'], PDO::PARAM_STR);
+		$stmt->bindParam(':trans', $_POST['trans'], PDO::PARAM_STR);
+		$stmt->bindParam(':transT', $_POST['transT'], PDO::PARAM_STR);
+		$stmt->bindParam(':symbol', $_POST['symbol'], PDO::PARAM_STR);
+		$stmt->bindParam(':des', $_POST['des'], PDO::PARAM_STR);
+		$stmt->bindParam(':upid', $_GET['upid'], PDO::PARAM_STR);
 		$stmt->execute();
 	}catch(PDOException $e){
 		die($e->getMessage());
@@ -256,7 +276,7 @@ $(function() {
 						//end validator
 						}elseif(isAnnotator()){//Annotator display
 							?>
-<div class="table-responsive col-md-6">
+<div class="table-responsive col-md-8">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i>Sequences to Annotate</h4>
 		<hr>
@@ -270,15 +290,17 @@ $(function() {
 			<th>transcript biotype</th>
 			<th>symbole</th>
 			<th>Description</th>
+			<th>Save</th>
 			<th>Validate</th>
 		</tr>
 		</thead>
 		<tbody>
 			<?php
 			global $myPDO;
+			//GET the sequences to annotate
 			$query="SELECT DISTINCT annotid, name, pep.id as pid, genome.id as gid, geneid, transcript, genetype, transcrypttype, symbol, description 
 			FROM annot, pep, genome, users 
-			WHERE annotid=pepid AND pep.chromid=genome.chromid AND :id=annotator AND validated=0;";
+			WHERE annotid=pepid AND pep.chromid=genome.chromid AND annotator=:id AND validated=0;";
 			try{
 				$stmt=$myPDO->prepare($query);
 				$stmt->bindParam(":id", $_SESSION['user']['id'], PDO::PARAM_STR);
@@ -287,25 +309,26 @@ $(function() {
 			}catch(PDOException $e){
 				die($e->getMessage());
 			}
+			
 			while($row=$stmt->fetch()){//get the annotation values not yet validated.
 			?>
-			<?php echo $row['pid'];
-
-			echo $row['gid'];
-			echo "test";?>
 
 			<tr>
 			
 				<td onclick="location.href='view.php?id=<?php echo $row['pid'];?>&type=pep'"><u style=color:dark-blue"><?php echo $row['annotid'];?></u></td>
 				<td onclick="location.href='view.php?id=<?php echo $row['gid'];?>&type=genome'"><u style=color:dark-blue"><?php echo $row['name'];?></u></td>
-				<td ><?php echo $row['geneid'];?></td>
-				<td><?php echo $row['genetype'];?></td>
-				<td><?php echo $row['transcript'];?></td>
-				<td><?php echo $row['transcrypttype'];?></td>
-				<td><?php echo $row['symbol'];?></td>
-				<td><?php echo $row['description'];?></td>
+				<form action="<?php echo $_SERVER['PHP_SELF'];?>?upid=<?php echo $row['annotid'];?>" method="post">
+				<td><input class="form-control" type="text" name="geneid" value="<?php echo $row['geneid'];?>"></td>
+				<td><input class="form-control" type="text" name="geneT" value="<?php echo $row['genetype'];?>"></td>
+				<td><input class="form-control" type="text" name="trans" value="<?php echo $row['transcript'];?>"></td>
+				<td><input class="form-control" type="text" name="transT" value="<?php echo $row['transcrypttype'];?>"></td>
+				<td><input class="form-control" type="text" name="symbol" value="<?php echo $row['symbol'];?>"></td>
+				<td><input class="form-control" type="text" name="des" value="<?php echo $row['description'];?>"></td>
+				<td><input type="submit" class="btn btn-xs" value="Save" name="save-btn"></td>
+				</form>
+				<!-- Button to send the annotations -->
 				<td>
-					<a href="index.php?rid=<?php echo $$row['annotid'];?>">
+					<a href="index.php?rid=<?php echo $row['annotid'];?>">
 					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
 					</a>
 				</td>

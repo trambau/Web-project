@@ -1,12 +1,24 @@
 <?php
 session_start();
 include('functions.php');
-
+//check if user is logged in
 if (!isLoggedIn()) {
     $_SESSION['msg'] = "You must log in first";
     header('location: login.php');
 }
-  
+
+
+//--------------PAGES SPLIT
+$nbres=20;
+$totpage;
+if(isset($_GET['page'])){
+    $page=$_GET['page'];
+}else{
+    $page=1;
+}
+$startat=($page-1)*$nbres;
+//----------------------------
+
 $type=$_SESSION['type'];
 function search(){
     $name=$_SESSION['name'];
@@ -76,13 +88,25 @@ function genomeSearch($name, $loc, $genomeid, $seq){
     return $res;
 }
 function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid){
-    global $myPDO;
+    global $myPDO, $startat, $nbres, $totpage;
+    //return all the protein
     if(empty($name) && empty($loc) && empty($seq)&& empty($geneid)&& empty($geneB)&& empty($des)&& empty($id)&& empty($trans)&& empty($transB)&& empty($symbole) && empty($genomeid)){
-        $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid;";
+        $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid LIMIT :nbres OFFSET :startat;";
         try{
             $stmt=$myPDO->prepare($query);
+            $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
+            $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
             $stmt->execute();
             $res=$stmt;
+        }catch(PDOException $e){
+            die($e->getMessage());
+        }
+        $q2="SELECT count(pepid) FROM pep;";
+        try{
+            $stmt2=$myPDO->prepare($q2);
+            $stmt2->execute();
+            $res2=$stmt2->fetch();
+            $totpage=ceil($res2['count']/$nbres);
         }catch(PDOException $e){
             die($e->getMessage());
         }
@@ -102,17 +126,21 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         if(preg_match('/[^atgc%]/i', $seq)){
             //check if there are input parameters other than sequence
             if(!empty($search)){
+                //query with parameter and sequence pep
             $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq;";
             }else{
+                //query with just the sequence pep
                 $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq;";
             }
         }else{
             //check if there are input parameters other than sequence
             if(!empty($search)){
+                //query with parameters and gene sequence
             $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";
             }else{
+                //query with the gene sequence only
                 $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";
             }
         }
@@ -133,7 +161,6 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
 return $res;
 }
 $res=search();
-
 ?>
 
 <!DOCTYPE html>
@@ -219,5 +246,52 @@ else{
 //end if type=pep/cds
 }
 ?>
+<!--------------------------PAGINATION------------------------>
+<nav aria-label="Page navigation">
+<ul class="pagination" max-size='10'>
+
+<!--Get previous page-->
+<li class="page-item"><a class="page-link" href="results.php?page=1">First</a></li>
+<li class="page-item"><a class="page-link" href="results.php?page=<?php 
+if($page>1){
+    echo $page-1;
+}else{
+    echo $page;
+}?>">Previous</a></li>
+
+<?php
+$i=$page;
+$pagesDisplayed=10;
+$j=$totpage-$pagesDisplayed-1;
+//Check if the current page is in the last ten pages
+if($page>$j){
+    //add index between the current page and 10 pages before the last page
+    for($k=$j; $k<$page; $k++){
+        ?>
+        <li class="page-item"><a class="page-link" href="results.php?page=<?php echo $k;?>"><?php echo $k;?></a></li>
+        <?php   
+    }
+}
+    while($i<=$totpage && $i<$page+$pagesDisplayed){
+?>
+    <li class="page-item"><a class="page-link" href="results.php?page=<?php echo $i;?>"><?php echo $i;?></a></li>
+    
+<?php
+    $i++;
+    }//end while   
+?>
+<!-- Get next page-->
+<li class="page-item"><a class="page-link" href="results.php?page=<?php
+if($page<$totpage){
+    echo $page+1;
+}else{
+    echo $totpage;
+}
+?>">Next</a></li>
+<li class="page-item"><a class="page-link" href="results.php?page=<?php echo $totpage;?>">Last</a></li>
+
+</ul>
+</nav>
+
 </body>
 </html>

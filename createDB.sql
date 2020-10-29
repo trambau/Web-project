@@ -84,3 +84,9 @@ SELECT id, chromid, name from genome where to_tsvector('english', chromid ||' '|
 SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid) @@ plainto_tsquery('new')
 INTERSECT 
 SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome WHERE pep.sequence ILIKE '%%';
+
+SELECT DISTINCT annotid, name, pep.id as pid, genome.id as gid, geneid, transcript, genetype, transcrypttype, symbol, description 
+			FROM annot, pep, genome, users 
+			WHERE annotid=pepid AND pep.chromid=genome.chromid AND annotator=80 AND validated=0;
+
+        select email, annotid, validated from annot, users where annotator=users.id;
