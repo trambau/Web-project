@@ -51,9 +51,12 @@ if(isset($_GET['uid'])){
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Home</title>
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
-	<link rel="stylesheet" type="text/css" href="../style.css">
+	<title>Home</title>	
+	<link rel="stylesheet" href="../assets/bootstrap.css"> 
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 	<style>
 	.header {
 		background: #003366;
@@ -64,76 +67,82 @@ if(isset($_GET['uid'])){
 	</style>
 </head>
 <body>
-<div class="topnav">
-<div><h2 style="float:inline-start;color:azure">LOGO</h2></div>
-<div style="float:left; size:50px" class="dropdown">
-			<div class="dropbtn">Menu</div>
-		<div class="dropdown-content">
-			<a href="#">Link 1</a>
-			<a href="#">Link 2</a>
-			<a href="#">Link 3</a>
-			<strong><?php echo $_SESSION['user']["firstname"]; ?></strong>
-		</div>
-	</div>
-  <a class="active" href="#home">Home</a>
-  <a href="#news">News</a>
-  <a href="#contact">Contact</a>
-  <a href="#about">About</a>
-  <form style="padding: 7px 16px;" action="" method="post">
-	  <input type="text">
-  </form>
-  
-</div> 
-<div class="header" style="background-color: #003366;position:relative">
+<!-------TOPNAV---------------------------->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#003366">
+  <a class="navbar-brand" href="../index.php"><h4 style="margin:0px">LOGO</h4></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-	<a style="float:right;color:red" href="home.php?logout='1'">logout</a>
-	<br>
-	<h2 style="color:azure">LOGO</h2>
-	 
-</div>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <!----------------HOME for admin or users----------------->
+        <?php
+        if(isAdmin()){
+        ?>
+        <a class="nav-link" href="home.php" >Home <span class="sr-only">(current)</span></a>
+        <?php
+        }else{
+        ?>
+        <a class="nav-link" href="../index.php" >Home <span class="sr-only">(current)</span></a>
+        <?php
+        }
+        ?>
+        <!--------------------------->
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Menu
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="../search.php">Search</a>
+          <a class="dropdown-item" href="../index.php">Home</a>
+          <div class="dropdown-divider"></div>
+          <!-----DISPLAY name of user and role------------>
+          <p class="dropdown-item" style="color:darkcyan"><?php 
+          $name=$_SESSION['user']['firstname'];
+          if(isAdmin()){
+            $name.="(".$_SESSION['user']['usertype'].")";
+          }else{
+            $name.="(".$_SESSION['user']['userrole'].")";
+          }
+          echo $name;?></p>
 
-<!--
-	<div class="header">
-		<h2 style="color:#eaeaea">Admin - Home Page</h2>
-	</div>-->
-	<div class="content">
-		<!-- notification message -->
-		<?php if (isset($_SESSION['success'])) : ?>
-			<div class="error success" >
-				<h3>
-					<?php 
-						echo $_SESSION['success']; 
-						unset($_SESSION['success']);
-					?>
-				</h3>
-			</div>
-		<?php endif ?>
+		  <a class="dropdown-item" style="color:red" href=".?logout=1">Logout</a>
+		  <div class="dropdown-divider"></div>
+		  <a class="dropdown-item" style="color:darkslategrey" href="createUser.php">Create User</a>
+		  <a class="dropdown-item" style="color:darkslategrey" href="parser.php">Add file</a>
 
-		<!-- logged in user information -->
-		<div class="profile_info">
-			<img src="../images/admin_profile.png"  >
+        </div>
+      </li>
+    </ul>
+    <div class="p-2">
+    <form class="form-inline my-2 my-lg-1" style="line-height:75%" action="../results.php" method="get">
+       <div class="p-2">
+		 <div style="float:inline-start" class="input-group">
+		 <select class="btn btn-outline-light btn-mini" name="type">
+    <option selected="selected" value="genome">Genome</option>
+    <option value="pep">Peptide</option>
+  </select>
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
 
-			<div>
-				<?php  if (isset($_SESSION['user'])) : ?>
-					<strong><?php echo $_SESSION['user']["firstname"]; ?></strong>
+    
+         </div>
+      <br>
+      <small><a href="../search.php" style="color:white">advanced search</a></small>
+	   </div> 
+	   <input type="submit" class="btn btn-outline-light" value="Search">
+    </form>
+    </div>
 
-					<small>
-						<i  style="color: #888;">(<?php echo ucfirst($_SESSION['user']['usertype']); ?>)</i> 
-						<br>
-						<a href="home.php?logout='1'" style="color: red;">logout</a>
-                       &nbsp; <a href="createUser.php"> + add user</a>
-					   &nbsp; <a href="parser.php"> add file</a>
-					   &nbsp; <a href="../search.php"> Search</a>
+  </div>
+</nav>
+<br>
 
-					</small>
-
-				<?php endif ?>
-			</div>
-		</div>
-	</div>
 	<!-- table with the users -->
 	<table class="table table-striped table-advance table-hover">
-	<h4><i class="fa fa-angle-right"></i> All User Details </h4>
+	<h4><i class="fa fa-angle-right"></i>User Details </h4>
 		<hr>
 		<thead>
 		<tr>

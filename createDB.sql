@@ -94,3 +94,24 @@ SELECT DISTINCT annotid, name, pep.id as pid, genome.id as gid, geneid, transcri
  SELECT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description, email 
 			FROM annot, pep, genome, users 
 			WHERE annotid=pepid AND pep.chromid=genome.chromid AND validated=0 AND isAnnotated=0 AND users.id=annotator;
+
+SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE '%new%'
+        UNION
+        SELECT pep.id FROM pep WHERE pepid ILIKE '%new%'
+        UNION
+        SELECT pep.id FROM pep WHERE pep.chromid ILIKE '%new%'
+        UNION
+        SELECT pep.id FROM pep WHERE location ILIKE '%new%'
+        UNION
+        SELECT pep.id FROM pep, annot WHERE geneid ILIKE '%new%' AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE transcript ILIKE '%new%' AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE genetype ILIKE '%new%' AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE transcrypttype ILIKE '%new%' AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE symbol ILIKE '%new%' AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE description ILIKE '%new%' AND annotid=pepid
+        ;

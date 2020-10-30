@@ -1,6 +1,15 @@
 <?php 
     include('../functions.php');
 //update the annotator in the annotaion table
+if (!isLoggedIn()) {
+	$_SESSION['msg'] = "You must log in first";
+	header('location: ../login.php');
+}
+
+if(!isValidator()){
+    header('location:../index.php');
+}
+
 if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
 	global $myPDO;
 	$id=$_GET['uid'];

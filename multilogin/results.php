@@ -18,8 +18,11 @@ if(isset($_GET['page'])){
 }
 $startat=($page-1)*$nbres;
 //----------------------------
-
-$type=$_SESSION['type'];
+if(isset($_GET['type'])){
+    $type=$_GET['type'];
+}else{
+    $type=$_SESSION['type'];
+}
 function search(){
     $name=$_SESSION['name'];
     $genomeid=$_SESSION['genomeid'];
@@ -44,7 +47,23 @@ function search(){
 }
 function genomeSearch($name, $loc, $genomeid, $seq){
     global $myPDO;
-    if(empty($name) && empty($loc) && empty($seq) && empty($genomeid)){
+  
+    if(isset($_GET['search'])){
+        $_GET['search']="%".$_GET['search']."%";
+        $q="SELECT id, chromid, name FROM genome WHERE name ILIKE :s
+        UNION
+        SELECT id, chromid, name FROM genome WHERE chromid ILIKE :s
+        UNION
+        SELECT id, chromid, name FROM genome WHERE loc ILIKE :s;";
+        try{
+            $stmt=$myPDO->prepare($q);
+            $stmt->bindParam(":s", $_GET['search'], PDO::PARAM_STR);
+            $stmt->execute();
+            $res=$stmt;
+        }catch(PDOException $e){
+            die($e->getMessage());
+        }
+    }elseif(empty($name) && empty($loc) && empty($seq) && empty($genomeid)){
         $query="SELECT id, chromid, name from genome;";
         try{
             $stmt=$myPDO->prepare($query);
@@ -92,7 +111,65 @@ function genomeSearch($name, $loc, $genomeid, $seq){
 function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid){
     global $myPDO, $startat, $nbres, $totpage;
     //return all the protein
-    if(empty($name) && empty($loc) && empty($seq)&& empty($geneid)&& empty($geneB)&& empty($des)&& empty($id)&& empty($trans)&& empty($transB)&& empty($symbole) && empty($genomeid)){
+    if(isset($_GET['search'])){
+        $_GET['search']="%".$_GET['search']."%";
+        $q="(SELECT pep.id, name, pepid, location, pep.chromid FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pepid ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pep.chromid ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND location ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND geneid ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND transcript ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat) 
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND genetype ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND transcrypttype ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND symbol ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        UNION
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND description ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        ;";
+        $q2="SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s
+        UNION
+        SELECT pep.id FROM pep WHERE pepid ILIKE :s
+        UNION
+        SELECT pep.id FROM pep WHERE pep.chromid ILIKE :s
+        UNION
+        SELECT pep.id FROM pep WHERE location ILIKE :s
+        UNION
+        SELECT pep.id FROM pep, annot WHERE geneid ILIKE :s AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE transcript ILIKE :s AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE genetype ILIKE :s AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE transcrypttype ILIKE :s AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE symbol ILIKE :s AND annotid=pepid
+        UNION
+        SELECT pep.id FROM pep, annot WHERE description ILIKE :s AND annotid=pepid
+        ;";
+        try{
+            $stmt=$myPDO->prepare($q);
+            $s2=$myPDO->prepare($q2);
+            $stmt->bindParam(":s", $_GET['search'], PDO::PARAM_STR);
+            $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
+            $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
+            $s2->bindParam(":s", $_GET['search'], PDO::PARAM_STR);
+            $s2->execute();
+            $stmt->execute();
+            $res=$stmt;
+
+            $nbrow=$s2->rowCount();
+            $totpage=ceil($nbrow/$nbres);
+        }catch(PDOException $e){
+            die($e->getMessage());
+        }
+    }elseif(empty($name) && empty($loc) && empty($seq)&& empty($geneid)&& empty($geneB)&& empty($des)&& empty($id)&& empty($trans)&& empty($transB)&& empty($symbole) && empty($genomeid)){
         $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid LIMIT :nbres OFFSET :startat;";
         try{
             $stmt=$myPDO->prepare($query);
@@ -189,16 +266,90 @@ $res=search();
 Results
 </title>
 <header>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+<link rel="stylesheet" href="assets/bootstrap.css">     
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 </header>
 <body>
-<div class="header" style="background-color:dodgerblue">
-        <br>
-        <a style="float:right;color:red" href=".?logout='1'">logout</a>
-        <br>
-        <a style="color:brown" href="search.php">Search</a>
-        <h2 style="color:azure">LOGO</h2>
+    <!-------TOPNAV---------------------------->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:dodgerblue">
+  <a class="navbar-brand" href="index.php"><h4 style="margin:0px">LOGO</h4></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <!----------------HOME for admin or users----------------->
+        <?php
+        if(isAdmin()){
+        ?>
+        <a class="nav-link" href="admin/home.php" >Home <span class="sr-only">(current)</span></a>
+        <?php
+        }else{
+        ?>
+        <a class="nav-link" href="index.php" >Home <span class="sr-only">(current)</span></a>
+        <?php
+        }
+        ?>
+        <!--------------------------->
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Menu
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="search.php">Search</a>
+          <a class="dropdown-item" href="index.php">Home</a>
+          <div class="dropdown-divider"></div>
+          <!-----DISPLAY name of user and role------------>
+          <p class="dropdown-item" style="color:darkcyan"><?php 
+          $name=$_SESSION['user']['firstname'];
+          if(isAdmin()){
+            $name.="(".$_SESSION['user']['usertype'].")";
+          }else{
+            $name.="(".$_SESSION['user']['userrole'].")";
+          }
+          echo $name;?></p>
+
+          <a class="dropdown-item" style="color:red" href=".?logout=1">Logout</a>
+          <?php
+          if(isAdmin()){
+          ?>
+          <div class="dropdown-divider"></div>
+		  <a class="dropdown-item" style="color:darkslategrey" href="admin/createUser.php">Create User</a>
+		  <a class="dropdown-item" style="color:darkslategrey" href="admin/parser.php">Add file</a>
+          <?php
+          }?>
+
+        </div>
+      </li>
+    </ul>
+    <div class="p-2">
+    <form class="form-inline my-2 my-lg-1" style="line-height:75%" action="results.php" method="get">
+       <div class="p-2">
+		 <div style="float:inline-start" class="input-group">
+		 <select class="btn btn-outline-light btn-mini" name="type">
+    <option selected="selected" value="genome">Genome</option>
+    <option value="pep">Peptide</option>
+  </select>
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
+
+    
+         </div>
+      <br>
+      <small><a href="search.php" style="color:white">advanced search</a></small>
+	   </div> 
+	   <input type="submit" class="btn btn-outline-light" value="Search">
+    </form>
     </div>
+
+  </div>
+</nav>
+
     
     <?php
     //Genome Type

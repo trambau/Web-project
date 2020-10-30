@@ -1,5 +1,12 @@
 <?php 
-    include('../functions.php');
+	include('../functions.php');
+	if (!isLoggedIn()) {
+		$_SESSION['msg'] = "You must log in first";
+		header('location: ../login.php');
+	}
+	if(!isValidator()){
+		header('location:../index.php');
+	}
 //REJECT the annotation and put a comment 
 if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 	global $myPDO;

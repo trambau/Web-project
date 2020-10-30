@@ -1,6 +1,11 @@
+<!DOCTYPE html>
 <html>
-    <body>
-        
-    <iframe src="test.php" frameborder="0"></iframe>
-    </body>
-</html>
+    <header>
+
+    </header>
+<body>
+    <?php
+    include('test.php');
+    ?>
+</body>
+    </html>
