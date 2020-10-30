@@ -85,7 +85,7 @@ $path="assign.php";
 $(function() {
     //autocomplete
     $("#annot").autocomplete({
-        source: "completeUser.php",
+        source: "../completeUser.php",
         minLength: 1
     });                
 });
@@ -98,7 +98,7 @@ $(function() {
         if(us===""){
             alert('Please select an Email first.');
         }else{
-            window.location.href = "testindex.php?uid="+us+"&pepid="+"<?php echo $row['pepid'];?>";
+            window.location.href = "assign.php?uid="+us+"&pepid="+"<?php echo $row['pepid'];?>";
         }
     }
 </script>
@@ -133,7 +133,7 @@ if($page>1){
 $i=$page;
 $pagesDisplayed=5;
 //check if there are more than one page to display
-if($totpage>1){
+if($totpage>$pagesDisplayed){
 $j=$totpage-$pagesDisplayed-1;
 }else{
     $j=1;
@@ -149,7 +149,7 @@ if($page>$j){
 }
     while($i<=$totpage && $i<$page+$pagesDisplayed){
 ?>
-    <li class="page-item"><a class="page-link" href=""<?php  echo $path."?page=".$i;?>"><?php echo $i;?></a></li>
+    <li class="page-item"><a class="page-link" href="<?php  echo $path."?page=".$i;?>"><?php echo $i;?></a></li>
     
 <?php
     $i++;

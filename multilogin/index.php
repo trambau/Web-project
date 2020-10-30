@@ -141,11 +141,11 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 			</div>
 		</div>
 
-<!-- Display for Validator-->
+<!--------------------- Display for Validator------------------->
 
 						<?php if(isValidator()){?>
 	<div class="row">
-		<!--
+		<!----------------------ASSIGING SEQUENCES---------------------------
 	<div class="table-responsive col-md-4">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i> Sequences in wait</h4>
@@ -284,10 +284,11 @@ $(function() {
 </div>----------------------------END REVIEW------------------------------------->
 </div><!--end div row-->
 
-						<?php
-						//end validator
-						}elseif(isAnnotator()){//Annotator display
-							?>
+<?php
+//------------------------end validator-----------------------------
+}
+if(isAnnotator()){//---------Annotator display
+?>
 <div class="table-responsive col-md-8">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i>Sequences to Annotate</h4>
@@ -352,16 +353,72 @@ $(function() {
 	</table>
 </div>							
 
-<h4>TTTTTTTTTTTTTTTTTTTTTTt</h4>
-							<?php //end if annotator
-						}else{//User type user
-						?>
+<?php //end if annotator
+}
+//else{//-------------------------User type user-------------------
+?>
+<!--------------------TABLE with the annotation in work -------------------->
+<div class="table-responsive col-md-8">
+	<table class="table table-striped table-advance table-hover">
+	<h4><i class="fa fa-angle-right"></i>Current Annotations</h4>
+		<hr>
+		<thead>
+		<tr>
+			<th>Sequence ID</th>
+			<th>Strain</th>
+			<th>geneID</th>
+			<th>Gene biotype</th>
+			<th>transcript</th>
+			<th>transcript biotype</th>
+			<th>symbole</th>
+			<th>Description</th>
+			<th>Annotator</th>
+		</tr>
+		</thead>
+		<tbody>
+			<?php
+			global $myPDO;
+			//GET the sequences to annotate
+			$query="SELECT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description, email 
+			FROM annot, pep, genome, users 
+			WHERE annotid=pepid AND pep.chromid=genome.chromid AND validated=0 AND isAnnotated=0 AND users.id=annotator;";
+			try{
+				$stmt=$myPDO->prepare($query);
+				$stmt->execute();
+				$stmt;
+			}catch(PDOException $e){
+				die($e->getMessage());
+			}
+			
+			while($row=$stmt->fetch()){//get the annotation values not yet validated.
+			?>
 
-						<?php
-						}//end if user
-						?>
+			<tr>
+			
+				<td onclick="location.href='view.php?id=<?php echo $row['pid'];?>&type=pep'"><u style=color:dark-blue"><?php echo $row['annotid'];?></u></td>
+				<td onclick="location.href='view.php?id=<?php echo $row['gid'];?>&type=genome'"><u style=color:dark-blue"><?php echo $row['name'];?></u></td>
+				<form action="<?php echo $_SERVER['PHP_SELF'];?>?upid=<?php echo $row['annotid'];?>" method="post">
+				<td><?php echo $row['geneid'];?></td>
+				<td><?php echo $row['genetype'];?></td>
+				<td><?php echo $row['transcript'];?></td>
+				<td><?php echo $row['transcrypttype'];?></td>
+				<td><?php echo $row['symbol'];?></td>
+				<td><?php echo $row['description'];?></td>
+				<td><?php echo $row['email'];?></td>
+
+			</tr>
+			<?php	
+			}//end while
+			?>
+		</tbody>
+	</table>
+</div>			
+
+<?php
+//}//end if user
+?>
 
 			
-	</div>
+</div>
 </body>
 </html>

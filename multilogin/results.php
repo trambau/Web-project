@@ -285,7 +285,7 @@ if($page>1){
 $i=$page;
 $pagesDisplayed=10;
 //check if there are more than one page to display
-if($totpage>1){
+if($totpage>$pagesDisplayed){
 $j=$totpage-$pagesDisplayed-1;
 }else{
     $j=1;

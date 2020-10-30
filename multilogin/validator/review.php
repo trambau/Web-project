@@ -148,23 +148,23 @@ if($page>1){
 $i=$page;
 $pagesDisplayed=5;
 //check if there are more than one page to display
-if($totpage>1){
+if($totpage>$pagesDisplayed){
 $j=$totpage-$pagesDisplayed-1;
 }else{
     $j=1;
 }
-//Check if the current page is in the last ten pages
+//Check if the current page is in the last pages
 if($page>$j){
-    //add index between the current page and 10 pages before the last page
+    //add index between the current page and j pages before the last page
     for($k=$j; $k<$page; $k++){
-        ?>
+		?>
         <li class="page-item"><a class="page-link" href="<?php echo $path."?page=".$k;?>"><?php echo $k;?></a></li>
         <?php   
     }
 }
     while($i<=$totpage && $i<$page+$pagesDisplayed){
 ?>
-    <li class="page-item"><a class="page-link" href=""<?php  echo $path."?page=".$i;?>"><?php echo $i;?></a></li>
+    <li class="page-item"><a class="page-link" href="<?php  echo $path."?page=".$i;?>"><?php echo $i;?></a></li>
     
 <?php
     $i++;
