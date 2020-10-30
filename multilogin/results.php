@@ -349,7 +349,7 @@ Results
 
   </div>
 </nav>
-
+<br>
     
     <?php
     //Genome Type

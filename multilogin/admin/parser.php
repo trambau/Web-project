@@ -63,7 +63,7 @@ if (isset($_GET['logout'])) {
           }
           echo $name;?></p>
 
-		  <a class="dropdown-item" style="color:red" href=".?logout=1">Logout</a>
+		  <a class="dropdown-item" style="color:red" href="?logout=1">Logout</a>
 		  <div class="dropdown-divider"></div>
 		  <a class="dropdown-item" style="color:darkslategrey" href="createUser.php">Create User</a>
 		  <a class="dropdown-item" style="color:darkslategrey" href="parser.php">Add file</a>

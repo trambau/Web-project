@@ -68,7 +68,7 @@ if(isset($_GET['uid'])){
 </head>
 <body>
 <!-------TOPNAV---------------------------->
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#003366">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:black">
   <a class="navbar-brand" href="../index.php"><h4 style="margin:0px">LOGO</h4></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -109,7 +109,7 @@ if(isset($_GET['uid'])){
           }
           echo $name;?></p>
 
-		  <a class="dropdown-item" style="color:red" href=".?logout=1">Logout</a>
+		  <a class="dropdown-item" style="color:red" href="?logout=1">Logout</a>
 		  <div class="dropdown-divider"></div>
 		  <a class="dropdown-item" style="color:darkslategrey" href="createUser.php">Create User</a>
 		  <a class="dropdown-item" style="color:darkslategrey" href="parser.php">Add file</a>

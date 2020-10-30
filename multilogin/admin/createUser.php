@@ -15,7 +15,6 @@ if (!isAdmin()) {
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
     <style type="text/css">
-        body{ font: 14px sans-serif; }
 		.wrapper{ width: 350px; padding: 20px;}
 		
     </style>
@@ -62,7 +61,7 @@ if (!isAdmin()) {
           }
           echo $name;?></p>
 
-		  <a class="dropdown-item" style="color:red" href=".?logout=1">Logout</a>
+		  <a class="dropdown-item" style="color:red" href="?logout=1">Logout</a>
 		  <div class="dropdown-divider"></div>
 		  <a class="dropdown-item" style="color:darkslategrey" href="createUser.php">Create User</a>
 		  <a class="dropdown-item" style="color:darkslategrey" href="parser.php">Add file</a>
