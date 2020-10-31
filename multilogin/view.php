@@ -152,11 +152,15 @@ View
             return result;
         }
     </script>
-<div class="col-12 col-md-4 col-xl-15 py-md-15 bd-content">
+    <div class="row">
+
+
 <?php
 //check if genome
 if($type=="genome"){
 ?>
+<div class="col">
+<div class="col-12 col-md-4 col-xl-15 py-md-15 bd-content">
 <table class="table table-bordered table-stripped">
     <tbody>
         <tr>
@@ -201,11 +205,23 @@ if($type=="genome"){
     </tbody>
 
 </table>
+</div>
+</div>
+<div class="col" style="float:right">
+<table class="col-md-25">
+<tr><th>Access external ressources</th></tr>
+<tr><td><a href="https://www.ncbi.nlm.nih.gov/genome/?term=<?php echo $res['chromid'];?>">Genome DB</a></td></tr>
+</table>
+</div>
+
 
 <?php
 //end if type genome
-}else{
+}else{//-----------------PEPTIDE---------------
 ?>
+
+<div class="col">
+<div class="col-12 col-md-4 col-xl-15 py-md-15 bd-content">
 <table class="table table-bordered table-hover">
     <tbody>
         <tr>
@@ -280,9 +296,22 @@ if($type=="genome"){
     </tbody>
 
 </table>
+</div>
+</div>
+<div class="col" style="float:right">
+<table class="col-md-25">
+<tr><th>Access external ressources</th></tr>
+<tr><td><a href="https://www.ncbi.nlm.nih.gov/protein/<?php echo $res['pepid'];?>">Protein DB</a></td></tr>
+
+<tr><td><a href="https://www.ncbi.nlm.nih.gov/genome/?term=<?php echo $res['chromid'];?>">Genome DB</a></td></tr>
+</table>
+</div>
+
+
 <?php
 }//end if peptide
 ?>
+</div><!--div row-->
 </div>
 </body>
 </html>
