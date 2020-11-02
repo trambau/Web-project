@@ -1,6 +1,8 @@
 /*
 sudo -i -u postgres
 CREATE DATABASE db;
+sudo -u postgres psql
+psql=# alter user <username> with encrypted password '<password>';
 */
 CREATE TABLE users (
             id SERIAL,

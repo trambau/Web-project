@@ -85,6 +85,17 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 		die($e->getMessage());
 	}
 }
+//------------PAGE--------------
+$nbres=8;
+$totpage;
+if(isset($_GET['page'])){
+    $page=$_GET['page'];
+}else{
+    $page=1;
+}
+$startat=($page-1)*$nbres;
+$path="index.php";
+//---------------------------------
 //-------------------------HTML----------------------------------
 ?>
 
@@ -335,6 +346,7 @@ $(function() {
 }
 if(isAnnotator()){//---------Annotator display
 ?>
+<!--
 <div class="table-responsive col-md-8">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i>Sequences to Annotate</h4>
@@ -385,7 +397,7 @@ if(isAnnotator()){//---------Annotator display
 				<td><input class="form-control" type="text" name="des" value="<?php echo $row['description'];?>"></td>
 				<td><input type="submit" class="btn btn-xs" value="Save" name="save-btn"></td>
 				</form>
-				<!-- Button to send the annotations -->
+				
 				<td>
 					<a href="index.php?rid=<?php echo $row['annotid'];?>">
 					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
@@ -398,7 +410,11 @@ if(isAnnotator()){//---------Annotator display
 		</tbody>
 	</table>
 </div>							
-
+		-->
+<div class="row" style="padding:15px; overflow:hidden" >
+<h4><i class="fa fa-angle-right"></i> Sequuences To Annotate</h4>
+<iframe src="./annotator/annotation.php" height="700" width="1800" frameborder="0" marginwidth="10" marginheight="0"></iframe>
+</div>
 <?php //end if annotator
 }
 //else{//-------------------------User type user-------------------
@@ -428,10 +444,16 @@ if(isAnnotator()){//---------Annotator display
 			$query="SELECT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description, email 
 			FROM annot, pep, genome, users 
 			WHERE annotid=pepid AND pep.chromid=genome.chromid AND validated=0 AND isAnnotated=0 AND users.id=annotator;";
+			$q2="SELECT annotid
+			FROM annot, pep, genome, users 
+			WHERE annotid=pepid AND pep.chromid=genome.chromid AND validated=0 AND isAnnotated=0 AND users.id=annotator;";
 			try{
 				$stmt=$myPDO->prepare($query);
 				$stmt->execute();
-				$stmt;
+				$s2=$myPDO->prepare($q2);
+				$s2->execute();
+				$nbrow=$s2->rowCount();
+                $totpage=ceil($nbrow/$nbres);
 			}catch(PDOException $e){
 				die($e->getMessage());
 			}
@@ -459,7 +481,64 @@ if(isAnnotator()){//---------Annotator display
 		</tbody>
 	</table>
 </div>			
+ <!--------------------------PAGINATION------------------------>
+ <?php
+  if($totpage>1){//check if there are more than one page
+  ?>
+  <nav aria-label="Page navigation">
+<ul class="pagination" max-size='10'>
 
+<!--Get previous page-->
+<li class="page-item"><a class="page-link" href="<?php echo $path."?page=";?>1">First</a></li>
+<li class="page-item"><a class="page-link" href="<?php echo $path."?page=";?><?php 
+if($page>1){
+    echo $page-1;
+}else{
+    echo $page;
+}?>">Previous</a></li>
+
+<?php
+
+$i=$page;
+$pagesDisplayed=5;
+//check if there are more than one page to display
+if($totpage>$pagesDisplayed){
+$j=$totpage-$pagesDisplayed-1;
+}else{
+    $j=1;
+}
+//Check if the current page is in the last ten pages
+if($page>$j){
+    //add index between the current page and 10 pages before the last page
+    for($k=$j; $k<$page; $k++){
+        ?>
+        <li class="page-item"><a class="page-link" href="<?php echo $path."?page=".$k;?>"><?php echo $k;?></a></li>
+        <?php   
+    }
+}
+    while($i<=$totpage && $i<$page+$pagesDisplayed){
+?>
+    <li class="page-item"><a class="page-link" href="<?php  echo $path."?page=".$i;?>"><?php echo $i;?></a></li>
+    
+<?php
+    $i++;
+    }//end while   
+?>
+<!-- Get next page-->
+<li class="page-item"><a class="page-link" href="<?php echo $path."?page=";?><?php
+if($page<$totpage){
+    echo $page+1;
+}else{
+    echo $totpage;
+}
+?>">Next</a></li>
+<li class="page-item"><a class="page-link" href="<?php echo $path."?page=".$totpage;?>">Last</a></li>
+
+</ul>
+</nav>
+<?php
+} //end if
+?>
 <?php
 //}//end if user
 ?>
