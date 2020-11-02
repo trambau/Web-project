@@ -39,7 +39,7 @@
                 <input type="submit" class="btn btn-primary" value="Login" name="login_btn">
             </div>
 		
-// if no existing account: link to register		
+<!--// if no existing account: link to register		-->
             <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
         </form>
     </div>
