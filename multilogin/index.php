@@ -441,7 +441,7 @@ if(isAnnotator()){//---------Annotator display
 			<?php
 			global $myPDO;
 			//GET the sequences to annotate
-			$query="SELECT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description, email 
+			$query="SELECT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description, email, genome.id as gid, pep.id as pid 
 			FROM annot, pep, genome, users 
 			WHERE annotid=pepid AND pep.chromid=genome.chromid AND validated=0 AND isAnnotated=0 AND users.id=annotator;";
 			$q2="SELECT annotid

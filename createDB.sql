@@ -117,3 +117,8 @@ SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE '
         UNION
         SELECT pep.id FROM pep, annot WHERE description ILIKE '%new%' AND annotid=pepid
         ;
+
+//commande blast
+bin/makeblastdb -in *fasta -dbtype "prot" -out dbdir/DB
+bin/blastp -query file.fa -db dbdir/DB("db created previously")
+ncbi-blast-2.10.1+/bin/blastp -query 2lines -db balstDb/new_DB -outfmt '7 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen gaps'
