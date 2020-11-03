@@ -49,7 +49,7 @@ function genomeSearch($name, $loc, $genomeid, $seq){
     global $myPDO;
   
     if(isset($_GET['search'])){
-        $_GET['search']="%".$_GET['search']."%";
+        $search="%".$_GET['search']."%";
         $q="SELECT id, chromid, name FROM genome WHERE name ILIKE :s
         UNION
         SELECT id, chromid, name FROM genome WHERE chromid ILIKE :s
@@ -57,7 +57,7 @@ function genomeSearch($name, $loc, $genomeid, $seq){
         SELECT id, chromid, name FROM genome WHERE loc ILIKE :s;";
         try{
             $stmt=$myPDO->prepare($q);
-            $stmt->bindParam(":s", $_GET['search'], PDO::PARAM_STR);
+            $stmt->bindParam(":s", $search, PDO::PARAM_STR);
             $stmt->execute();
             $res=$stmt;
         }catch(PDOException $e){
@@ -112,7 +112,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
     global $myPDO, $startat, $nbres, $totpage;
     //return all the protein
     if(isset($_GET['search'])){
-        $_GET['search']="%".$_GET['search']."%";
+        $search="%".$_GET['search']."%";
         $q="(SELECT pep.id, name, pepid, location, pep.chromid FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
         UNION
         (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pepid ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
@@ -156,10 +156,10 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         try{
             $stmt=$myPDO->prepare($q);
             $s2=$myPDO->prepare($q2);
-            $stmt->bindParam(":s", $_GET['search'], PDO::PARAM_STR);
+            $stmt->bindParam(":s", $search, PDO::PARAM_STR);
             $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
             $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
-            $s2->bindParam(":s", $_GET['search'], PDO::PARAM_STR);
+            $s2->bindParam(":s", $search, PDO::PARAM_STR);
             $s2->execute();
             $stmt->execute();
             $res=$stmt;
@@ -326,6 +326,17 @@ Results
           }?>
 
         </div>
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Download
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
+            <input type="text" placeholder="/home/..." value="<?php echo $pa;?>" name="pa" class="form-control">
+            <input type="submit" class="btn btn-primary">
+        </form>
+        </div>
+       
       </li>
     </ul>
     <div class="p-2">
@@ -421,16 +432,24 @@ else{
 ?>
 <!--------------------------PAGINATION------------------------>
 <nav aria-label="Page navigation">
-<ul class="pagination" max-size='10'>
+<ul class="pagination pg-blue" max-size='10'>
 
 <!--Get previous page-->
-<li class="page-item"><a class="page-link" href="results.php?page=1">First</a></li>
+<li class="page-item"><a class="page-link" href="results.php?page=1<?php
+if(isset($_GET['type'])){
+    echo "&type=".$type."&search=".$_GET['search'];
+}
+?>">First</a></li>
 <li class="page-item"><a class="page-link" href="results.php?page=<?php 
 if($page>1){
     echo $page-1;
 }else{
     echo $page;
-}?>">Previous</a></li>
+}
+if(isset($_GET['type'])){
+    echo "&type=".$type."&search=".$_GET['search'];
+}
+?>">Previous</a></li>
 
 <?php
 $i=$page;
@@ -445,16 +464,24 @@ $j=$totpage-$pagesDisplayed-1;
 if($page>$j){
     //add index between the current page and 10 pages before the last page
     for($k=$j; $k<$page; $k++){
-        ?>
-        <li class="page-item"><a class="page-link" href="results.php?page=<?php echo $k;?>"><?php echo $k;?></a></li>
-        <?php   
-    }
+            ?>
+            <li class="page-item"><a class="page-link" href="results.php?page=<?php echo $k;
+            if(isset($_GET['type'])){
+                echo "&type=".$type."&search=".$_GET['search'];
+            }
+            ?>"><?php echo $k;?></a></li>
+            <?php   
+        }
+    
 }
     while($i<=$totpage && $i<$page+$pagesDisplayed){
-?>
-    <li class="page-item"><a class="page-link" href="results.php?page=<?php echo $i;?>"><?php echo $i;?></a></li>
-    
-<?php
+?>          
+        <li class="page-item"><a class="page-link" style="<?php if($i==$page){echo "background:dodgerblue; color:white"; }?>" href="results.php?page=<?php echo $i;
+        if(isset($_GET['type'])){
+            echo "&type=".$type."&search=".$_GET['search'];
+        }
+        ?>"><?php echo $i;?></a></li>
+    <?php    
     $i++;
     }//end while   
 ?>
@@ -465,10 +492,22 @@ if($page<$totpage){
 }else{
     echo $totpage;
 }
+if(isset($_GET['type'])){
+    echo "&type=".$type."&search=".$_GET['search'];
+}
 ?>">Next</a></li>
-<li class="page-item"><a class="page-link" href="results.php?page=<?php echo $totpage;?>">Last</a></li>
+<li class="page-item"><a class="page-link" href="results.php?page=<?php echo $totpage;
+if(isset($_GET['type'])){
+    echo "&type=".$type."&search=".$_GET['search'];
+}
+?>">Last</a></li>
 
 </ul>
 </nav>
+<?php
+global $query;
+echo $query;
+
+?>
 </body>
 </html>
