@@ -20,7 +20,7 @@ if (!isAdmin()) {
     </style>
 </head>
 <!-------TOPNAV---------------------------->
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#003366">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:black">
   <a class="navbar-brand" href="../index.php"><h4 style="margin:0px">LOGO</h4></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -54,11 +54,7 @@ if (!isAdmin()) {
           <!-----DISPLAY name of user and role------------>
           <p class="dropdown-item" style="color:darkcyan"><?php 
           $name=$_SESSION['user']['firstname'];
-          if(isAdmin()){
-            $name.="(".$_SESSION['user']['usertype'].")";
-          }else{
-            $name.="(".$_SESSION['user']['userrole'].")";
-          }
+          $name.="(".$_SESSION['user']['userrole'].")";
           echo $name;?></p>
 
 		  <a class="dropdown-item" style="color:red" href="?logout=1">Logout</a>
@@ -113,20 +109,13 @@ if (!isAdmin()) {
                 <input type="text" name="phone" class="form-control" value="<?php echo $phone; ?>" placeholder="0123...">
                 <span class="help-block"><?php echo $phone_er; ?></span>
             </div> 
-			<div class="form-group">
-				<label>User type</label>
-				<select name="usertype" id="usertype" class="btn btn-min btn-outline-dark">
-					<option value=""></option>
-					<option value="admin">Admin</option>
-					<option selected="selected" value="user">User</option>
-				</select>
-			</div>
 			<div class="form-group <?php echo (!empty($role_er)) ? 'has-error' : ''; ?>">
 				<label>User role</label>
 				<select name="userRole" id="userRole" class="btn btn-min btn-outline-dark">
 					<option selected="selected" value="utilisateur" <?php if($role=="utilisateur"){echo "selected";}?>>Utilisateur</option>
 					<option value="annotator" <?php if($role=="annotator"){echo "selected";}?>>Annotateur</option>
 					<option value="validator" <?php if($role=="validator"){echo "selected";}?>>Validateur</option>
+          <option value="admin" <?php if($role=="validator"){echo "selected";}?>>Admin</option>
 				</select>
 				<span class="help-block"><?php echo $role_er; ?></span>
 			</div>
@@ -146,7 +135,7 @@ if (!isAdmin()) {
                 <span class="help-block"><?php echo $password2_er; ?></span>
             </div>
             <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Create User" name="register_btn">
+                <input type="submit" class="btn btn-primary" value="Create User" name="createUser_btn">
                 <input type="reset" class="btn btn-outline-dark" value="Reset">
             </div>
         </form>

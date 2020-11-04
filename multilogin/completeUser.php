@@ -14,7 +14,7 @@ function getemail(){
         INTERSECT(
         SELECT email FROM users WHERE userrole='annotator'
         UNION SELECT email FROM users WHERE userrole='validator'
-        UNION SELECT email FROM users WHERE usertype='admin'
+        UNION SELECT email FROM users WHERE userrole='admin'
         );";
         $stmt = $conn->prepare($query);
         $stmt->execute(array('term' => '%'.$_GET['term'].'%'));

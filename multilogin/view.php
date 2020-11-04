@@ -97,11 +97,7 @@ View
           <!-----DISPLAY name of user and role------------>
           <p class="dropdown-item" style="color:darkcyan"><?php 
           $nam=$_SESSION['user']['firstname'];
-          if(isAdmin()){
-            $nam.="(".$_SESSION['user']['usertype'].")";
-          }else{
-            $nam.="(".$_SESSION['user']['userrole'].")";
-          }
+          $nam.="(".$_SESSION['user']['userrole'].")";
           echo $nam;?></p>
 
           <a class="dropdown-item" style="color:red" href=".?logout=1">Logout</a>

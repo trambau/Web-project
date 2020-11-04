@@ -22,7 +22,7 @@ if (isset($_GET['logout'])) {
 </head>
 <body>
   <!-------TOPNAV---------------------------->
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#003366">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:black">
   <a class="navbar-brand" href="../index.php"><h4 style="margin:0px">LOGO</h4></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -56,11 +56,7 @@ if (isset($_GET['logout'])) {
           <!-----DISPLAY name of user and role------------>
           <p class="dropdown-item" style="color:darkcyan"><?php 
           $name=$_SESSION['user']['firstname'];
-          if(isAdmin()){
-            $name.="(".$_SESSION['user']['usertype'].")";
-          }else{
-            $name.="(".$_SESSION['user']['userrole'].")";
-          }
+          $name.="(".$_SESSION['user']['userrole'].")";
           echo $name;?></p>
 
 		  <a class="dropdown-item" style="color:red" href="?logout=1">Logout</a>

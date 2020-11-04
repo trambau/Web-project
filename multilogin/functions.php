@@ -4,13 +4,15 @@ session_start();
 
 // connect to database
 try{
+    /*
     $datab="db";
     $user="postgres";
     $dbpswd="postgres";
-    /*
+    */
+    
     $datab="sample";
     $user="trambaud";
-    $dbpswd="trambaud";*/
+    $dbpswd="trambaud";
     $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
     $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -27,13 +29,18 @@ $errors   = array();
 
 // call the register() function if register_btn is clicked
 if (isset($_POST['register_btn'])) {
-	register();
+    $flag=0;
+	register($flag);
+}
+if(isset($_POST['createUser_btn'])){
+    $flag=1;
+    register($flag);
 }
 
 // REGISTER USER
-function register(){
+function register($flag){
 	// call these variables with the global keyword to make them available in function
-	global $myPDO, $errors, $fName, $email, $lName, $phone, $fName_er, $lName_er, $phone_er, $email_er, $password2_er, $password_er, $role, $role_er;
+	global $myPDO, $fName, $email, $lName, $phone, $fName_er, $lName_er, $phone_er, $email_er, $password2_er, $password_er, $role, $role_er;
 
     //get the values from the form
     $fName       =  trim($_POST['firstName']);
@@ -107,18 +114,16 @@ function register(){
 	// register user if there are no errors in the form       
     if(empty($fName_er) && empty($lName_er) && empty($phone_er) && empty($email_er) && empty($password_er) && empty($password2_er) && empty($role_er)){
 		$password = password_hash($password_1, PASSWORD_DEFAULT);//encrypt the password before saving in the database
-        //Check if usertype is set, if yes validate the account
-		if (isset($_POST['usertype'])) {
-			$user_type = trim($_POST['usertype']);
-			$query = "INSERT INTO users (firstname, lastname,phone,  email, usertype, pswd, isapproved, userrole) 
-                      VALUES( :fName, :lName, :phone, :email, :user_type, :password, 1, :role)";
+        //Check if user created by admin, if yes validate the account
+		if ($flag) {
+			$query = "INSERT INTO users (firstname, lastname,phone,  email, pswd, isapproved, userrole) 
+                      VALUES( :fName, :lName, :phone, :email, :password, 1, :role)";
             try{
                 $stmt = $myPDO->prepare($query);
                 $stmt->bindParam(":fName", $fName, PDO::PARAM_STR);
                 $stmt->bindParam(":lName", $lName, PDO::PARAM_STR);
                 $stmt->bindParam(":phone", $phone, PDO::PARAM_STR);
                 $stmt->bindParam(":email", $email, PDO::PARAM_STR);
-                $stmt->bindParam(":user_type", $user_type, PDO::PARAM_STR);
                 $stmt->bindParam(":password", $password, PDO::PARAM_STR);
                 $stmt->bindParam(":role", $role, PDO::PARAM_STR);
                 $stmt->execute();
@@ -129,8 +134,8 @@ function register(){
 			header('location: home.php');
 		}else{
             //create an account not yet validated
-			$query = "INSERT INTO users (firstname, lastname, phone, email, usertype, pswd, userrole)
-                      VALUES(:fName, :lName, :phone, :email, 'user', :password, :role)";
+			$query = "INSERT INTO users (firstname, lastname, phone, email, pswd, userrole)
+                      VALUES(:fName, :lName, :phone, :email, :password, :role)";
             try{
                 $stmt = $myPDO->prepare($query);
                 
@@ -250,7 +255,7 @@ function login(){
                         die($e->getMessage());
                     }
                     // check if user is admin or user
-                    if ($logged_in_user['usertype'] == 'admin') {
+                    if ($logged_in_user['userrole'] == 'admin') {
 
                         $_SESSION['user'] = $logged_in_user;
                         $_SESSION['success']  = "You are now logged in";
@@ -276,7 +281,7 @@ function login(){
 //check if the current user is admin
 function isAdmin()
 {
-	if (isset($_SESSION['user']) && $_SESSION['user']['usertype'] == 'admin' ) {
+	if (isset($_SESSION['user']) && $_SESSION['user']['userrole'] == 'admin' ) {
 		return true;
 	}else{
 		return false;
@@ -311,8 +316,8 @@ function totalUsers () {
     }
     return $numRows;
 }
-function test (){
-    echo "test function";
+function test ($int){
+    echo "test".$int;
 }
 //browse every files in a directory
 function parseDir ($dir){
