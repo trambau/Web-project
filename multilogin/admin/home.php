@@ -18,7 +18,6 @@ if(isset($_GET['id'])){
 	$query="DELETE FROM users WHERE id=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
-		test();
 
 		$stmt->bindParam(":id", $id, PDO::PARAM_INT);
 		
