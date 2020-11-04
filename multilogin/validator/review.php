@@ -12,7 +12,7 @@ if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 	global $myPDO;
 	$id=$_GET['annotationid'];
 	$com=$_GET['comment'];
-	$query="UPDATE annot SET geneid='', transcript='', genetype='', transcrypttype='', symbol='', description=:com, validated=0 WHERE annotid=:id;";
+	$query="UPDATE annot SET geneid='', transcript='', genetype='', transcrypttype='', symbol='', description=:com, upreview=0 WHERE annotid=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
 		$stmt->bindParam(":com", $com, PDO::PARAM_STR);
@@ -24,10 +24,10 @@ if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 }
 
 //VALIDATE the annotation and put them in the DATABASE
-if(!empty($_GET['genomeid'])){
+if(!empty($_GET['aid'])){
 	global $myPDO;
-	$id=$_GET['genomeid'];
-	$query="UPDATE genome SET isannotated=1 WHERE id=:id;";
+	$id=$_GET['aid'];
+	$query="UPDATE annot SET validated=1 WHERE id=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
 		$stmt->bindParam(":id", $id, PDO::PARAM_INT);
@@ -86,10 +86,10 @@ $path="review.php";
 		<tbody>
 			<?php
             global $myPDO; 			//Get the annotation needing review.
-			$query="SELECT annotid, name, genome.id as gid, email, geneid, transcript, genetype, transcrypttype, symbol, description 
+			$query="SELECT annot.id as aid, annotid, name, email, geneid, transcript, genetype, transcrypttype, symbol, description 
 			FROM annot, pep, genome, users 
-            WHERE annotid=pepid AND pep.chromid=genome.chromid AND users.id=annotator AND validated=1 AND isannotated=0 AND annotator IS NOT NULL LIMIT :nbres OFFSET :startat;";
-            $q2="select annotid from annot, pep, genome where annotid=pepid and genome.chromid=pep.chromid and validated=1 and isannotated=0 and annotator IS NOT NULL;";
+            WHERE annotid=pepid AND pep.chromid=genome.chromid AND users.id=annotator AND upreview=1 AND validated=0 AND annotator IS NOT NULL LIMIT :nbres OFFSET :startat;";
+            $q2="SELECT annotid FROM annot WHERE upreview=1 AND validated=0 AND annotator IS NOT NULL;";
 			try{
                 $stmt=$myPDO->prepare($query);
                 $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
@@ -116,7 +116,7 @@ $path="review.php";
 				<td class="col-1"><?php echo $row['symbol'];?></td>
 				<td class="col-1"><?php echo $row['description'];?></td>
 				<td>
-					<a href="index.php?genomeid=<?php echo $row['gid'];?>">
+					<a href="review.php?aid=<?php echo $row['aid'];?>">
 					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
 					</a>
 				</td>
@@ -125,7 +125,7 @@ $path="review.php";
 	//take input from user
 	function getComment(){
 	var message=window.prompt("Write a comment for the annotator.");
-	window.location.href = "index.php?comment="+message+"&annotationid="+"<?php echo $row['annotid'];?>";
+	window.location.href = "review.php?comment="+message+"&annotationid="+"<?php echo $row['annotid'];?>";
 	}
 	</script>
 				<button class="btn btn-danger btn-xs" onClick="getComment()"><i class="fa fa-trash-o "></i>Reject</button>
@@ -138,6 +138,9 @@ $path="review.php";
 	</table>
 </div>
   <!--------------------------PAGINATION------------------------>
+  <?php
+ if($totpage>1){ 
+  ?>
 <nav aria-label="Page navigation">
 <ul class="pagination" max-size='10'>
 
@@ -189,6 +192,8 @@ if($page<$totpage){
 
 </ul>
 </nav>
-
+<?php
+}
+?>
 </body>
 </html>

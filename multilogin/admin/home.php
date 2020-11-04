@@ -178,10 +178,6 @@ if(isset($_GET['uid'])){
 			?>
 			</td>
 			<td>    
-			    <!--              
-				<a href="updateProfile.php?uid=<?php echo $row['id'];?>"> 
-				<button class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></button></a>
-				-->
 				<a href="home.php?id=<?php echo $row['id'];?>"> 
 				<button class="btn btn-danger btn-xs" onClick="return confirm('Do you really want to delete');"><i class="fa fa-trash-o " ></i>
 				<img src="../assets/bin.jpg" >

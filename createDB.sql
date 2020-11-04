@@ -7,7 +7,7 @@ psql=# alter user <username> with encrypted password '<password>';
 CREATE TABLE users (
     id SERIAL,
     email VARCHAR(50) UNIQUE NOT NULL,
-    pswd VARCHAR(60) NOT NULL,
+    pswd VARCHAR(60) NOT NULL,/*size of encrypted password*/
     phone VARCHAR(15) NOT NULL,
     firstName VARCHAR(50) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
@@ -21,7 +21,6 @@ CREATE TABLE genome (
     chromID VARCHAR(10) UNIQUE NOT NULL,
     loc VARCHAR(20) NOT NULL,
     sequence VARCHAR,
-    isAnnotated SMALLINT DEFAULT 0,
     name VARCHAR(70) UNIQUE NOT NULL,
     PRIMARY KEY(id)
 );
@@ -54,7 +53,8 @@ CREATE table annot(
     transcryptType VARCHAR, 
     symbol VARCHAR(15),
     description VARCHAR(200),
-    validated SMALLINT,
+    validated SMALLINT,/*validate the annotations*/
+    upreview SMALLINT,/*Indicate the annotations are ready to be reviewed*/
     annotator INTEGER,
     PRIMARY KEY(id),
     FOREIGN KEY(annotID) REFERENCES pep(pepId),
@@ -68,12 +68,8 @@ ADD COLUMN isApproved SMALLINT DEFAULT 0;
 \copy (select sequence, id from pep) to '/home/trambaud/Documents/test.csv' with csv delimiter ';' header;
 
 /* create the first administrator and validate the account*/
-UPDATE users 
-SET usertype='admin' 
-WHERE email='admin@email.com';
-
 UPDATE users
-SET usertype='admin', isApproved=1
+SET userrole='admin', isApproved=1
 WHERE email='admin@email.com';
 
 /*Query on text Search*/

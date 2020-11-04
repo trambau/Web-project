@@ -67,11 +67,11 @@ $path="assign.php";
 		</tr>
 		</thead>
 	<tbody>
-	<!-- Display the non assigned sequences  !!!VALIDATE=0 TO REMOVE(MAYBE)-->
+	<!-- Display the non assigned sequences  -->
 	<?php 
 	global $myPDO;
-    $query="SELECT name, pepid, pep.chromid FROM annot, pep, genome where annotid=pepid and pep.chromid=genome.chromid and isannotated=0 and annotator IS NULL LIMIT :nbres OFFSET :startat;";
-    $q2="SELECT annotid FROM annot, genome, pep where annotid=pepid and pep.chromid=genome.chromid and isannotated=0 and annotator IS NULL;";
+    $query="SELECT name, pepid, pep.chromid FROM annot, pep, genome where annotid=pepid and pep.chromid=genome.chromid and validated=0 and annotator IS NULL LIMIT :nbres OFFSET :startat;";
+    $q2="SELECT annotid FROM annot WHERE validated=0 AND annotator IS NULL;";
     $stmt=$myPDO->prepare($query);
     $st2=$myPDO->prepare($q2);
     $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
@@ -125,6 +125,9 @@ $(function() {
 </div>
 <div>
     <!--------------------------PAGINATION------------------------>
+<?php
+if($totpage>1){
+?>
 <nav aria-label="Page navigation">
 <ul class="pagination" max-size='10'>
 
@@ -176,5 +179,8 @@ if($page<$totpage){
 
 </ul>
 </nav>
+<?php
+}
+?>
 </body>
 </html>

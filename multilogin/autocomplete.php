@@ -2,9 +2,14 @@
 
 function getName(){
     try {
+        
         $datab="db";
         $user="postgres";
         $dbpswd="postgres";
+/*
+        $datab="sample";
+        $user="trambaud";
+        $dbpswd="trambaud";*/
 
         $conn=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

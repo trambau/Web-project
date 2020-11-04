@@ -14,7 +14,7 @@ if(!isAnnotator()){
 if(!empty($_GET['rid'])){
 	global $myPDO;
 	$id=$_GET['rid'];
-	$query="UPDATE annot SET validated=1 WHERE annotid=:id;";
+	$query="UPDATE annot SET upreview=1 WHERE annotid=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
 		$stmt->bindParam(":id", $id, PDO::PARAM_STR);
@@ -23,7 +23,24 @@ if(!empty($_GET['rid'])){
 		die($e->getMessage());
 	}
 }
-
+//UPDATE annotation
+if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
+	global $myPDO; 
+	$query="UPDATE annot SET geneid=:geneid, transcript=:trans, genetype=:geneT, transcrypttype=:transT, symbol=:symbol, description=:des WHERE annotid=:upid;";
+	try{
+		$stmt=$myPDO->prepare($query);
+		$stmt->bindParam(':geneid', $_POST['geneid'], PDO::PARAM_STR);
+		$stmt->bindParam(':geneT', $_POST['geneT'], PDO::PARAM_STR);
+		$stmt->bindParam(':trans', $_POST['trans'], PDO::PARAM_STR);
+		$stmt->bindParam(':transT', $_POST['transT'], PDO::PARAM_STR);
+		$stmt->bindParam(':symbol', $_POST['symbol'], PDO::PARAM_STR);
+		$stmt->bindParam(':des', $_POST['des'], PDO::PARAM_STR);
+		$stmt->bindParam(':upid', $_GET['upid'], PDO::PARAM_STR);
+		$stmt->execute();
+	}catch(PDOException $e){
+		die($e->getMessage());
+	}
+}
 //------------PAGE--------------
 $nbres=8;
 $totpage;
@@ -69,10 +86,10 @@ $path="annotation.php";
 			//GET the sequences to annotate
 			$query="SELECT DISTINCT annotid, name, pep.id as pid, genome.id as gid, geneid, transcript, genetype, transcrypttype, symbol, description 
 			FROM annot, pep, genome, users 
-            WHERE annotid=pepid AND pep.chromid=genome.chromid AND annotator=:id AND validated=0;";
+            WHERE annotid=pepid AND pep.chromid=genome.chromid AND annotator=:id AND upreview=0;";
             $q2="SELECT annotid 
 			FROM annot, pep
-            WHERE annotid=pepid AND annotator=:id AND validated=0;";
+            WHERE annotid=pepid AND annotator=:id AND upreview=0;";
 
 			try{
 				$stmt=$myPDO->prepare($query);
@@ -105,7 +122,7 @@ $path="annotation.php";
 				</form>
 				<!-- Button to send the annotations -->
 				<td>
-					<a href="index.php?rid=<?php echo $row['annotid'];?>">
+					<a href="annotation.php?rid=<?php echo $row['annotid'];?>">
 					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
 					</a>
 				</td>
@@ -119,7 +136,7 @@ $path="annotation.php";
 
   <!--------------------------PAGINATION------------------------>
   <?php
-  if($totpage>1){//check if there are more than one page
+  if($totpage>1){//check if there is more than one page
   ?>
   <nav aria-label="Page navigation">
 <ul class="pagination" max-size='10'>

@@ -4,15 +4,15 @@ session_start();
 
 // connect to database
 try{
-    /*
+    
     $datab="db";
     $user="postgres";
     $dbpswd="postgres";
-    */
     
+/*    
     $datab="sample";
     $user="trambaud";
-    $dbpswd="trambaud";
+    $dbpswd="trambaud";*/
     $myPDO=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
     $myPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $myPDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -333,10 +333,10 @@ function addFiles(){
     $dir=$_POST['file'];
     if(is_dir($dir)){
         parseDir($dir);
-        validGenome();
+        //validGenome();
     }elseif(is_file($dir)){
         parseFile($dir);
-        validGenome();
+        //validGenome();
     }else{
         die("Not a file or directory.");
     }
@@ -382,7 +382,7 @@ function parseFile ($file){
                 $name=$name[0];
                 $name=str_replace("_", " ", $name);
                 //value insertion
-                $query="INSERT INTO genome VALUES (DEFAULT, :id, :loc, :seq, DEFAULT, :name);";
+                $query="INSERT INTO genome VALUES (DEFAULT, :id, :loc, :seq, :name);";
                 try{
                     $stmt=$myPDO->prepare($query);
                     $stmt->bindParam(":id", $id, PDO::PARAM_STR);
@@ -465,7 +465,7 @@ function parseFile ($file){
                 }
                 //not annoted
                 if(empty($geneId)){
-                    $queryAnnot="INSERT INTO annot (id, annotid, validated)  VALUES (DEFAULT, :pepId, 0);";
+                    $queryAnnot="INSERT INTO annot (id, annotid, validated, upreview)  VALUES (DEFAULT, :pepId, 0, 0);";
                     try{
                         $stmt2=$myPDO->prepare($queryAnnot);
                         $stmt2->bindParam(":pepId", $pepId, PDO::PARAM_STR);
@@ -475,7 +475,7 @@ function parseFile ($file){
                     }
                 }else{
                     //Already annoted
-                    $queryAnnot="INSERT INTO annot VALUES (DEFAULT, :pepId, :geneId, :trans, :geneType, :transType, :symbol, :des, 1, NULL);";
+                    $queryAnnot="INSERT INTO annot VALUES (DEFAULT, :pepId, :geneId, :trans, :geneType, :transType, :symbol, :des, 1, 1, NULL);";
                     try{
                         $stmt2=$myPDO->prepare($queryAnnot);
                         $stmt2->bindParam(":pepId", $pepId, PDO::PARAM_STR);
@@ -566,6 +566,11 @@ function parseFile ($file){
         }
     }
 }
+
+
+
+
+//NEED TO BE DELETED???
 //check if genome annotated and valid it
 function validGenome(){
     global $myPDO;
