@@ -170,7 +170,7 @@ if(isset($_GET['uid'])){
 			if($row['isapproved']==0){
 				?>
 				<a href="home.php?uid=<?php echo $row['id'];?>"> 
-				<button class="btn btn-danger btn-xs" onClick="return confirm('Do you really want to validate the account?');"><i class="fa fa-trash-o "></i>Validate</button></a>
+				<button class="btn btn-danger btn-xs" onClick="return confirm('Do you want to validate the account?');"><i class="fa fa-trash-o "></i>Validate</button></a>
 			<?php
 			}else{
 				echo "Valid";
@@ -179,7 +179,7 @@ if(isset($_GET['uid'])){
 			</td>
 			<td>    
 				<a href="home.php?id=<?php echo $row['id'];?>"> 
-				<button class="btn btn-danger btn-xs" onClick="return confirm('Do you really want to delete');"><i class="fa fa-trash-o " ></i>
+				<button class="btn btn-danger btn-xs" onClick="return confirm('Do you want to delete the account');"><i class="fa fa-trash-o " ></i>
 				<img src="../assets/bin.jpg" >
 				</button></a>
 			</td>

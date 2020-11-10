@@ -58,7 +58,7 @@ $path="assign.php";
 	
 		<hr>
 		<thead>
-		<tr style="height:74px">
+		<tr style="height:74px" >
 			<th>Sequence ID</th>
 			<th>Strain</th>
 			<th>Chromosome ID</th>

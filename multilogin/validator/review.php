@@ -56,7 +56,9 @@ $path="review.php";
 <html>
 <head>
 	<title>Home</title>
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<!--<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">-->
+	<link rel="stylesheet" href="../assets/bootstrap.css"> 
+
 	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/minified/jquery-ui.min.css" type="text/css" /> 
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.min.js"></script>  
@@ -69,18 +71,18 @@ $path="review.php";
 	
 		<hr>
 		<thead>
-		<tr class="d-flex">
-			<th class="col-1">Sequence ID</th>
-			<th class="col-1">Strain</th>
-			<th class="col-1">Annotator</th>
-			<th class="col-1">geneID</th>
-			<th class="col-1">Gene biotype</th>
-			<th class="col-1">transcript</th>
-			<th class="col-1">transcript biotype</th>
-			<th class="col-1">symbole</th>
-			<th class="col-1">Description</th>
-			<th class="col-1">Validate</th>
-			<th class="col-1">Reject</th>
+		<tr>
+			<th style="font-size:12px">Sequence ID</th>
+			<th style="font-size:12px">Strain</th>
+			<th style="font-size:12px">Annotator</th>
+			<th style="font-size:12px">geneID</th>
+			<th style="font-size:12px">Gene biotype</th>
+			<th style="font-size:12px">transcript</th>
+			<th style="font-size:12px">transcript biotype</th>
+			<th style="font-size:12px">symbole</th>
+			<th style="font-size:12px">Description</th>
+			<th style="font-size:12px">Validate</th>
+			<th style="font-size:12px">Reject</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -105,22 +107,22 @@ $path="review.php";
 			while($row=$stmt->fetch()){
             ?>
             
-			<tr class="d-flex">
-				<td class="col-1"><?php echo $row['annotid'];?></td>
-				<td class="col-1"><?php echo $row['name'];?></td>
-				<td class="col-1"><?php echo $row['email'];?></td>
-				<td class="col-1"><?php echo $row['geneid'];?></td>
-				<td class="col-1"><?php echo $row['genetype'];?></td>
-				<td class="col-1"><?php echo $row['transcript'];?></td>
-				<td class="col-1"><?php echo $row['transcrypttype'];?></td>
-				<td class="col-1"><?php echo $row['symbol'];?></td>
-				<td class="col-1"><?php echo $row['description'];?></td>
-				<td>
+			<tr>
+				<td  style="font-size:12px"><?php echo $row['annotid'];?></td>
+				<td  style="font-size:12px"><?php echo $row['name'];?></td>
+				<td  style="font-size:12px"><?php echo $row['email'];?></td>
+				<td  style="font-size:12px"><?php echo $row['geneid'];?></td>
+				<td  style="font-size:12px"><?php echo $row['genetype'];?></td>
+				<td  style="font-size:12px"><?php echo $row['transcript'];?></td>
+				<td  style="font-size:12px"><?php echo $row['transcrypttype'];?></td>
+				<td  style="font-size:12px"><?php echo $row['symbol'];?></td>
+				<td  style="font-size:12px; word-wrap:break-word"><?php echo $row['description'];?></td>
+				<td >
 					<a href="review.php?aid=<?php echo $row['aid'];?>">
-					<button class="btn btn-info btn-xs" onClick=""><i class="fa fa-trash-o "></i>Validate</button>
+					<button class="btn btn-xs btn-info" onClick="" style="font-size:x-small"><i class="fa fa-trash-o "></i>Validate</button>
 					</a>
 				</td>
-				<td>
+				<td class="col-1">
 	<script>
 	//take input from user
 	function getComment(){
@@ -128,7 +130,7 @@ $path="review.php";
 	window.location.href = "review.php?comment="+message+"&annotationid="+"<?php echo $row['annotid'];?>";
 	}
 	</script>
-				<button class="btn btn-danger btn-xs" onClick="getComment()"><i class="fa fa-trash-o "></i>Reject</button>
+				<button class="btn btn-danger btn-xs" onClick="getComment()" style="font-size:x-small"><i class="fa fa-trash-o "></i>Reject</button>
 				</td>
 			</tr>
 			<?php	

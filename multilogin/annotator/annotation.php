@@ -23,8 +23,29 @@ if(!empty($_GET['rid'])){
 		die($e->getMessage());
 	}
 }
+function updateAnnot($geneid, $geneT, $trans, $symbol, $des, $id){
+	test($geneid);
+	global $myPDO; 
+	$query="UPDATE annot SET geneid=:geneid, transcript=:trans, genetype=:geneT, transcrypttype=:transT, symbol=:symbol, description=:des WHERE annotid=:upid;";
+	try{
+		$stmt=$myPDO->prepare($query);
+		$stmt->bindParam(':geneid', $geneid, PDO::PARAM_STR);
+		$stmt->bindParam(':geneT', $geneT, PDO::PARAM_STR);
+		$stmt->bindParam(':trans', $trans, PDO::PARAM_STR);
+		$stmt->bindParam(':transT', $transT, PDO::PARAM_STR);
+		$stmt->bindParam(':symbol', $symbol, PDO::PARAM_STR);
+		$stmt->bindParam(':des', $des, PDO::PARAM_STR);
+		$stmt->bindParam(':upid', $id, PDO::PARAM_STR);
+		$stmt->execute();
+	}catch(PDOException $e){
+		die($e->getMessage());
+	}
+}
+
 //UPDATE annotation
 if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
+	updateAnnot( $_POST['geneid'], $_POST['geneT'],$_POST['trans'], $_POST['transT'], $_POST['symbol'], $_POST['des'], $_GET['upid']);
+	/*
 	global $myPDO; 
 	$query="UPDATE annot SET geneid=:geneid, transcript=:trans, genetype=:geneT, transcrypttype=:transT, symbol=:symbol, description=:des WHERE annotid=:upid;";
 	try{
@@ -39,7 +60,7 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 		$stmt->execute();
 	}catch(PDOException $e){
 		die($e->getMessage());
-	}
+	}*/
 }
 //------------PAGE--------------
 $nbres=8;
@@ -118,7 +139,7 @@ $path="annotation.php";
 				<td><input class="form-control" type="text" name="transT" value="<?php echo $row['transcrypttype'];?>"></td>
 				<td><input class="form-control" type="text" name="symbol" value="<?php echo $row['symbol'];?>"></td>
 				<td><input class="form-control" type="text" name="des" value="<?php echo $row['description'];?>"></td>
-				<td><input type="submit" class="btn btn-xs" value="Save" name="save-btn"></td>
+				<td><input type="submit" class="btn btn-xs btn-outline-dark" value="Save" name="save-btn"></td>
 				</form>
 				<!-- Button to send the annotations -->
 				<td>
