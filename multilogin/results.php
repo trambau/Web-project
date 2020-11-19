@@ -7,7 +7,6 @@ if (!isLoggedIn()) {
     header('location: login.php');
 }
 
-
 //--------------PAGES SPLIT
 $nbres=20;
 $totpage;
@@ -38,36 +37,65 @@ function search(){
     //check if there is an error with the sequence
         global $type;
         if($type=="genome"){
-            $res=genomeSearch($name, $loc, $genomeid, $seq);
+            
+            $resL=genomeSearch($name, $loc, $genomeid, $seq);
         }else{  
-            $res=pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid);
+           
+            $resL=pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid);
         }
-        return $res;
+        return $resL;
     
 }
 function genomeSearch($name, $loc, $genomeid, $seq){
     global $myPDO;
   
     if(isset($_GET['search'])){
+        if(!empty($_GET['search'])){
+            
         $search="%".$_GET['search']."%";
-        $q="SELECT id, chromid, name FROM genome WHERE name ILIKE :s
-        UNION
-        SELECT id, chromid, name FROM genome WHERE chromid ILIKE :s
-        UNION
-        SELECT id, chromid, name FROM genome WHERE loc ILIKE :s;";
+            /*
+            $query2="SELECT id, chromid, name FROM genome WHERE name ILIKE :s
+            UNION
+            SELECT id, chromid, name FROM genome WHERE chromid ILIKE :s
+            UNION
+            SELECT id, chromid, name FROM genome WHERE loc ILIKE :s;";
+            */
+            $query2="SELECT id, chromid, name, loc, sequence FROM genome WHERE name ILIKE :s
+            UNION
+            SELECT id, chromid, name, loc, sequence FROM genome WHERE chromid ILIKE :s
+            UNION
+            SELECT id, chromid, name, loc, sequence FROM genome WHERE loc ILIKE :s;";
+        }else{
+          
+            $query2="SELECT id, chromid, name, loc, sequence FROM genome;";
+        }
         try{
-            $stmt=$myPDO->prepare($q);
-            $stmt->bindParam(":s", $search, PDO::PARAM_STR);
+            $stmt=$myPDO->prepare($query2);
+            $stmt2=$myPDO->prepare($query2);
+            if(!empty($_GET['search'])){
+                $stmt->bindParam(":s", $search, PDO::PARAM_STR);
+                $stmt2->bindParam(":s", $search, PDO::PARAM_STR);
+            }
             $stmt->execute();
+            $stmt2->execute();
             $res=$stmt;
+            $resList=$stmt2;
+            /*
+            while($row=$resList->fetch()){
+                print($row['name']);
+            }*/
         }catch(PDOException $e){
             die($e->getMessage());
         }
     }elseif(empty($name) && empty($loc) && empty($seq) && empty($genomeid)){
-        $query="SELECT id, chromid, name from genome;";
+        //$query="SELECT id, chromid, name from genome;";
+        $query2="SELECT id, chromid, name, loc, sequence from genome;";
+       
         try{
-            $stmt=$myPDO->prepare($query);
+            $stmt=$myPDO->prepare($query2);
             $stmt->execute();
+
+            $resList=$stmt;
             $res=$stmt;
         }catch(PDOException $e){
             die($e->getMessage());
@@ -86,18 +114,21 @@ function genomeSearch($name, $loc, $genomeid, $seq){
         }
         //check if search not empty 
         if(!empty($search)){
-            $query="SELECT id, chromid, name FROM genome WHERE to_tsvector('english', chromid ||' '|| name ||' '|| loc) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT id, chromid, name FROM genome WHERE sequence ILIKE :seq;";
+           
+            $query2="SELECT id, chromid, name, loc, sequence  FROM genome WHERE to_tsvector('english', chromid ||' '|| name ||' '|| loc) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT id, chromid, name, loc, sequence FROM genome WHERE sequence ILIKE :seq;";
         }else{
-            $query="SELECT id, chromid, name FROM genome WHERE sequence ILIKE :seq;";
+            
+            $query2="SELECT id, chromid, name, loc, sequence FROM genome WHERE sequence ILIKE :seq;";
         }
         try{
-            $stmt=$myPDO->prepare($query);
+            $stmt=$myPDO->prepare($query2);
             if(!empty($search)){
                 $stmt->bindParam(":par", $search);
             }
             $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
             $stmt->execute();
+            $resList=$stmt;
             $res=$stmt;
         }catch(PDOException $e){
             die($e->getMessage());
@@ -106,14 +137,18 @@ function genomeSearch($name, $loc, $genomeid, $seq){
 
 
 
-    return $res;
+    return [$res, $resList];
 }
+// function to search inside the peptides and cds
 function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $geneB, $symbole, $genomeid){
+   
     global $myPDO, $startat, $nbres, $totpage;
     //return all the protein
     if(isset($_GET['search'])){
+        if(!empty($_GET['search'])){
+            
         $search="%".$_GET['search']."%";
-        $q="(SELECT pep.id, name, pepid, location, pep.chromid FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        $query="(SELECT pep.id, name, pepid, location, pep.chromid FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
         UNION
         (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pepid ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
         UNION
@@ -133,7 +168,8 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         UNION
         (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND description ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
         ;";
-        $q2="SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s
+        /*
+        $query2="SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s
         UNION
         SELECT pep.id FROM pep WHERE pepid ILIKE :s
         UNION
@@ -153,17 +189,45 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         UNION
         SELECT pep.id FROM pep, annot WHERE description ILIKE :s AND annotid=pepid
         ;";
+        */
+        $query2="(SELECT DISTINCT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE pepid=cdsid and annotid=pepid and genome.chromid=pep.chromid AND name ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND pepid ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND pep.chromid ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND pep.location ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND geneid ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND transcript ILIKE :s) 
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND genetype ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND transcrypttype ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND symbol ILIKE :s)
+        UNION
+        (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND description ILIKE :s)
+        ;";
+        }else{
+           
+            $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE pep.chromid=genome.chromid ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
+            $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, annot, genome WHERE pepid=cdsid and pepid=annotid and genome.chromid=pep.chromid;";
+        }
         try{
-            $stmt=$myPDO->prepare($q);
-            $s2=$myPDO->prepare($q2);
-            $stmt->bindParam(":s", $search, PDO::PARAM_STR);
+            $stmt=$myPDO->prepare($query);
+            $s2=$myPDO->prepare($query2);
+            if(!empty($_GET['search'])){
+                $stmt->bindParam(":s", $search, PDO::PARAM_STR);
+                $s2->bindParam(":s", $search, PDO::PARAM_STR);
+            }
             $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
             $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
-            $s2->bindParam(":s", $search, PDO::PARAM_STR);
             $s2->execute();
             $stmt->execute();
             $res=$stmt;
-
+            $resList=$s2;
             $nbrow=$s2->rowCount();
             $totpage=ceil($nbrow/$nbres);
         }catch(PDOException $e){
@@ -171,6 +235,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         }
     }elseif(empty($name) && empty($loc) && empty($seq)&& empty($geneid)&& empty($geneB)&& empty($des)&& empty($id)&& empty($trans)&& empty($transB)&& empty($symbole) && empty($genomeid)){
         $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid LIMIT :nbres OFFSET :startat;";
+       
         try{
             $stmt=$myPDO->prepare($query);
             $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
@@ -180,12 +245,14 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         }catch(PDOException $e){
             die($e->getMessage());
         }
-        $q2="SELECT count(pepid) FROM pep;";
+        //$query2="select pep.id from pep;";
+        $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, genome, annot WHERE cdsid=pepid and annotid=pepid and genome.chromid=pep.chromid;";
         try{
-            $stmt2=$myPDO->prepare($q2);
+            $stmt2=$myPDO->prepare($query2);
             $stmt2->execute();
-            $res2=$stmt2->fetch();
-            $totpage=ceil($res2['count']/$nbres);
+            $resList=$stmt2;
+            $nbrow=$stmt2->rowCount();
+            $totpage=ceil($nbrow/$nbres);
         }catch(PDOException $e){
             die($e->getMessage());
         }
@@ -202,33 +269,52 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             }
         }
         //check if sequence is nucleotids or peptides
-        if(preg_match('/[^atgc%]/i', $seq)){
+        if(preg_match('/[^atgc%]/i', $seq)){//peptide
             //check if there are input parameters other than sequence
             if(!empty($search)){
+                
                 //query with parameter and sequence pep
             $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pep.chromid=genome.chromid AND pepid=annotid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
+            /*
             $query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
+                */
+            $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=cdsid and pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=cdsid and pepid=annotid AND pep.chromid=genome.chromid and pep.sequence ILIKE :seq;";
+
             }else{
+               
                 //query with just the sequence pep
                 $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
-                $query2="SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
+                //$query2="SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
+
+                $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, annot, genome WHERE pepid=cdsid and pepid=annotid and genome.chromid=pep.chromid and pep.sequence ILIKE :seq;";
 
             }
-        }else{
+        }else{//cds
             //check if there are input parameters other than sequence
             if(!empty($search)){
+                
                 //query with parameters and gene sequence
             $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid LIMIT :nbres OFFSET :startat;";
-            $query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT pep.id FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";    
+            /*$query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
+                    INTERSECT SELECT pep.id FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";
+            */
+            
+            $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=annotid AND pep.chromid=genome.chromid and pepid=cdsid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| pep.location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
+                     INTERSECT SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, genome, annot WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid and pepid=annotid;";  
+            
             }else{
+                
                 //query with the gene sequence only
-                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid LIMIT :nbres OFFSET :startat;";
+                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE cdsid=pepid AND cds.chromid=genome.chromid AND cds.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
                 //query to get the number of row
-                $query2="SELECT pep.id FROM pep, cds WHERE cds.sequence ILIKE :seq AND cdsid=pepid;";
+                //$query2="SELECT pep.id FROM pep, cds WHERE cds.sequence ILIKE :seq AND cdsid=pepid;";
+
+                $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FroM cds, pep, annot, genome WHERE cdsid=pepid AND annotid=pepid AND pep.chromid=genome.chromid AND cds.sequence ILIKE :seq;";
+
 
             }
         }
@@ -237,17 +323,23 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             $stmt2=$myPDO->prepare($query2);
             //check if parameter needed
             if(!empty($search)){
-            $stmt->bindParam(":par", $search);
-            $stmt2->bindParam(":par", $search);
+                $stmt->bindParam(":par", $search);
+                $stmt2->bindParam(":par", $search);
             }
+            
+            
             $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
             $stmt2->bindParam(":seq", $seq, PDO::PARAM_STR);
             $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
             $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
+            
             $stmt->execute();
             $stmt2->execute();
-            $res=$stmt;
             
+            
+            $res=$stmt;
+
+            $resList=$stmt2;
             $nbrow=$stmt2->rowCount();
             $totpage=ceil($nbrow/$nbres);
         }catch(PDOException $e){
@@ -255,9 +347,112 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         }
     }
     
-return $res;
+return [$res, $resList];
 }
-$res=search();
+function Download($list){
+    header('Content-Type: text/plain');
+    header("Content-disposition: attachment; filename=results.txt");
+    set_time_limit(0);
+
+    if(isset($_POST['name'])){
+        print('name');
+    }
+    if(isset($_POST['id'])){
+        print(";chromid");
+    }
+    if(isset($_POST['pepid'])){
+        print(";pepid");
+    }
+    if(isset($_POST['geneid'])){
+        print(";geneid");
+    }
+    if(isset($_POST['loc']) || isset($_POST['loca'])){
+        print(";location");
+    }
+    if(isset($_POST['geneid'])){
+        print(";geneid");
+    }
+    if(isset($_POST['genet'])){
+        print(";genetype");
+    }
+    if(isset($_POST['trans'])){
+        print(";transcript");
+    }
+    if(isset($_POST['transt'])){
+        print(";transcriptType");
+    }
+    if(isset($_POST['sym'])){
+        print(";symbol");
+    }
+    if(isset($_POST['des'])){
+        print(";description");
+    }
+    if(isset($_POST['seq'])){
+        print(";genome.sequence");
+    }
+    if(isset($_POST['seqp'])){
+        print(";pep.sequence");
+    }
+    if(isset($_POST['seqc'])){
+        print(";cds.sequence");
+    }
+    print("\n");
+
+    while($row=$list->fetch()){
+        
+        if(isset($_POST['name'])){
+            print($row['name']);
+        }
+        if(isset($_POST['id'])){
+            print(";".$row['chromid']);
+        }
+        if(isset($_POST['pepid'])){
+            print(";".$row['pepid']);
+        }
+        if(isset($_POST['loc'])){
+            print(";".$row['loc']);
+        }
+        if(isset($_POST['loca'])){
+            print(";".$row['location']);
+        }
+        if(isset($_POST['geneid'])){
+            print(";".$row['geneid']);
+        }
+        if(isset($_POST['genet'])){
+            print(";".$row['genetype']);
+        }
+        if(isset($_POST['trans'])){
+            print(";".$row['transcript']);
+        }
+        if(isset($_POST['transt'])){
+            print(";".$row['transcrypttype']);
+        }
+        if(isset($_POST['sym'])){
+            print(";".$row['symbol']);
+        }
+        if(isset($_POST['des'])){
+            print(";".$row['description']);
+        }
+        if(isset($_POST['seq'])){
+            print(";".$row['sequence']);
+        }
+        if(isset($_POST['seqp'])){
+            print(";".$row['seqp']);
+        }
+        if(isset($_POST['seqc'])){
+            print(";".$row['seqc']);
+        }
+        
+        print("\n");
+        
+    }
+    exit(0);
+}
+$resL=search();
+$res=$resL[0];
+if(isset($_POST['down_btn'])){ 
+   Download($resL[1]);
+}
 ?>
 
 <!DOCTYPE html>
@@ -327,10 +522,89 @@ Results
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Download
         </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
-            <input type="text" placeholder="/home/..." value="<?php echo $pa;?>" name="pa" class="form-control">
-            <input type="submit" class="btn btn-primary">
+        <div class="dropdown-menu" style="width:200px; padding:10px" aria-labelledby="navbarDropdown">
+            <h6>Select the wanted fields</h6>
+            <div class="dropdown-divider"></div>
+            <form action="<?php 
+            if(isset($_GET['type'])){
+                print($_SERVER["PHP_SELF"]."?type=".$_GET['type']."&search=".$_GET['search']);
+            }else{
+            echo $_SERVER["PHP_SELF"];
+            }?>" method="post">
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="name" id="name" name="down">
+            <label class="form-check-label" for="name">Organism Name</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="id" id="id" name="down">
+            <label class="form-check-label" for="id">Chromosome ID</label>
+            </div>
+            <?php if($type=="genome"){ ?>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="loc" id="loc" name="down">
+            <label class="form-check-label" for="loc">Location</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="seq" id="seq" name="down">
+            <label class="form-check-label" for="seq">Sequence</label>
+            </div>
+            <?php }else{?>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="pepid" id="pepid" name="down">
+            <label class="form-check-label" for="pepid">Peptide/CDS ID</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="loca" id="loca" name="down">
+            <label class="form-check-label" for="loca">Location</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="geneid" id="geneid" name="down">
+            <label class="form-check-label" for="geneid">Gene ID</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="trans" id="trans" name="down">
+            <label class="form-check-label" for="trans">Transcript</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="transt" id="transt" name="down">
+            <label class="form-check-label" for="transt">Transcript Type</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="genet" id="genet" name="down">
+            <label class="form-check-label" for="genet">Gene Type</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="sym" id="sym" name="down">
+            <label class="form-check-label" for="sym">Symbol</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="des" id="des" name="down">
+            <label class="form-check-label" for="des">Description</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="seqp" id="seqp" name="down">
+            <label class="form-check-label" for="seqp">Peptide Sequence</label>
+            </div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" value="seqc" id="seqc" name="down">
+            <label class="form-check-label" for="seqc">CDS Sequence</label>
+            </div>
+            <?php }?>
+            <div class="dropdown-divider"></div>
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="select_all">
+            <label class="form-check-label" for="select_all">Select All</label>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Download" name="down_btn">
+<script>
+    document.getElementById('select_all').onclick = function() {
+        var checkboxes = document.getElementsByName('down');
+        for (var checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    }
+</script>
+
         </form>
         </div>
        
@@ -501,10 +775,6 @@ if(isset($_GET['type'])){
 
 </ul>
 </nav>
-<?php
-global $query;
-echo $query;
 
-?>
 </body>
 </html>

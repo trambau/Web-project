@@ -117,3 +117,6 @@ SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE '
 bin/makeblastdb -in *fasta -dbtype "prot" -out dbdir/DB
 bin/blastp -query file.fa -db dbdir/DB("db created previously")
 ncbi-blast-2.10.1+/bin/blastp -query 2lines -db balstDb/new_DB -outfmt '7 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen gaps'
+
+SELECT pepid, cdsid, pep.location, pep.sequence, cds.sequence, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=annotid AND pep.chromid=genome.chromid and pepid=cdsid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| pep.location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery('c5491')
+                    INTERSECT SELECT pepid, cdsid, pep.location, pep.sequence, cds.sequence, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description  FROM pep, cds, genome, annot WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE '%%' AND cdsid=pepid and pepid=annotid ;
