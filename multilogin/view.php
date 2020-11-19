@@ -50,19 +50,36 @@ function getCDSseq($id){
 ?>
 <!DOCTYPE html>
 <html>
-<title>
-View
-</title>
+<title>View</title>
 <header>
 <!--<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">-->
 <link rel="stylesheet" href="assets/bootstrap.css"> 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<script src="./assets/Scribl.1.1.4.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="./assets/dragscrollable.js"></script>
 
+<style>
+		   #scribl-zoom-slider {
+		      width: 15px;
+		   }
+		</style>
 </header>
+<?php
+//check if genome
+if($type=="genome"){
+?>
+<body onload="draw('canvas')">
+<?php
+}else{
+?>
 <body>
-  <!-------TOPNAV---------------------------->
+<?php } ?>
+<!-------------------------------------------------------------------------TOPNAV-------------------------------------------------------------------------------------->
   <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:dodgerblue">
   <a class="navbar-brand" href="index.php"><h4 style="margin:0px">LOGO</h4></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -147,14 +164,64 @@ View
             }
             return result;
         }
+        function showSeq(){
+            var tab=document.getElementById("view");
+            var seqV=document.getElementById("seqView");
+            var btn=document.getElementsByName("view_btn");
+            if(tab.style.display=="none"){
+                tab.style.display="block";
+                seqV.style.display="none";
+                btn.value="tet"
+            }else{
+                tab.style.display="none";
+                seqV.style.display="block";
+                btn.value="Show Info"
+            }
+        }
     </script>
-    <div class="row">
+  
 
 
 <?php
 //check if genome
 if($type=="genome"){
+    
+    $sql="SELECT DISTINCT location, cdsid, cds.id as cid FROM cds, genome WHERE cds.chromid=:id;";
+    try{
+        $stmt=$myPDO->prepare($sql);
+        $stmt->bindParam(":id", $res['chromid'], PDO::PARAM_INT);
+        $stmt->execute();
+        $genes=$stmt;
+    }catch(PDOException $e){
+        die($e->getMessage());
+    }
+    $dat=$genes->fetchAll();
+    //print($dat[0]['cdsid']);
+    $json=json_encode($dat, JSON_PRETTY_PRINT);
 ?>
+<div style="margin-left:auto; padding-left:20px; padding-bottom:10px">
+<input type="button" class="btn btn-outline-dark btn-xs" value="Show seq/info" id="btn_view" name="view_btn" onclick="showSeq()">
+</div>
+<div id="seqView" style="display:none">
+
+            <h4>Sequence</h4>
+            
+                <table>
+                <tr>
+                <span style="width:400px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
+                <?php 
+                
+                echo $res['sequence'];
+                
+                ?>
+                </span>
+                </tr>
+                </table>
+            
+
+</div>
+<div id="view">
+<div class="row">
 <div class="col">
 <div class="col-12 col-md-4 col-xl-15 py-md-15 bd-content">
 <table class="table table-bordered table-stripped">
@@ -182,22 +249,7 @@ if($type=="genome"){
             ?>
             </td>
         </tr>
-        <tr>
-            <th>Sequence</th>
-            <td>
-                <table>
-                <tr>
-                <span style="width:400px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
-                <?php 
-                
-                echo $res['sequence'];
-                
-                ?>
-                </span>
-                </tr>
-                </table>
-            </td>
-        </tr>
+       
     </tbody>
 
 </table>
@@ -209,13 +261,55 @@ if($type=="genome"){
 <tr><td><a href="https://www.ncbi.nlm.nih.gov/genome/?term=<?php echo $res['chromid'];?>">Genome DB</a></td></tr>
 </table>
 </div>
+</div><!--div row-->
+<!----------------------------------------------------------------------GENOME VIEW ---------------------------------------------------------------------------->
+<script>
+    var res=<?php echo $json;?>;
+    function draw(canvasName) {  
+				
+				// Get Canvas and Create Chart
+			  	var canvas = document.getElementById(canvasName);  	
+				
+				// Create Chart
+                chart = new Scribl(canvas, 500);
+                // Get gene location and orientation
+                chart.laneSizes=70;
+                chart.laneBuffer=10;
+                chart.trackBuffer=1;
+                chart.trackSizes=5;
+                track=chart.addTrack().addLane();
+                res.forEach(row => {
+                    var loc=row['location'].split(" ");
+                    var size=parseInt(loc[1])-parseInt(loc[0])+1;
+                    if(loc[2]=="1"){
+                        var or="+";
+                    }else{
+                        var or="-";
+                    }
+                    gene=track.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
+                    //gene = chart.addGene(parseInt(loc[0]), size, or);
+                    gene.name=row['cdsid'];
+                    gene.onMouseover = row['cdsid'];
+                    gene.onClick="./view.php?id="+row['cid']+"&type=pep";
+                });
+                
+                // Draw Chart
+                chart.scrollable=true;
+                chart.scrollValues=[0, 250000]
+				chart.draw();
+        }
+        
+</script>
+<div >
+<canvas id="canvas" style="margin-right:auto; margin-left:auto" width="1500" height="250"></canvas>
+</div>
 
-
+</div><!-- div all ---->
 <?php
 //end if type genome
-}else{//-----------------PEPTIDE---------------
+}else{//-----------------------------------------------------------------------PEPTIDE----------------------------------------------------------------------------------------
 ?>
-
+<div class="row">
 <div class="col">
 <div class="col-12 col-md-4 col-xl-15 py-md-15 bd-content">
 <table class="table table-bordered table-hover">
@@ -303,11 +397,11 @@ if($type=="genome"){
 </table>
 </div>
 
-
+</div><!--div row-->
 <?php
 }//end if peptide
 ?>
-</div><!--div row-->
+
 </div>
 </body>
 </html>

@@ -120,3 +120,24 @@ ncbi-blast-2.10.1+/bin/blastp -query 2lines -db balstDb/new_DB -outfmt '7 qseqid
 
 SELECT pepid, cdsid, pep.location, pep.sequence, cds.sequence, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=annotid AND pep.chromid=genome.chromid and pepid=cdsid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| pep.location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery('c5491')
                     INTERSECT SELECT pepid, cdsid, pep.location, pep.sequence, cds.sequence, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description  FROM pep, cds, genome, annot WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE '%%' AND cdsid=pepid and pepid=annotid ;
+
+                     /*
+                // Add Genes
+                <?php
+                while($row=$genes->fetch()){
+                    $loc=explode(" ", $row['location']);
+                    $size=$loc[1]-$loc[0]+1;
+                    if($loc[2]=="1"){
+                        $or="+";
+                    }else{
+                        $or="-";
+                    }
+                
+                ?>
+                var size= <?php echo $size;?>;
+                var loc= <?php echo $loc[0];?>;
+                var or= <?php echo $or;?>;
+				gene1 = chart.addGene( parseInt(loc),parseInt(size) , or);
+                <?php
+                }
+                ?>*/
