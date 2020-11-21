@@ -280,8 +280,11 @@ if($type=="genome"){
                 chart.scale.auto=false;
 
                 track=chart.addTrack().addLane();
+                track2=chart.addTrack().addLane();
+                var flag=0
                 //add each genes from the genome on a track
                 res.forEach(row => {
+                   
                     //get the location, size and orientation of the genes
                     var loc=row['location'].split(" ");
                     var size=parseInt(loc[1])-parseInt(loc[0])+1;
@@ -290,12 +293,18 @@ if($type=="genome"){
                     }else{
                         var or="-";
                     }
-
-                    gene=track.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
+                    if(flag!=0 && parseInt(loc[0])<start){
+                        gene=track2.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
+                    }else{
+                        gene=track.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
+                    }
+                    start=parseInt(loc[0]);
+                    //gene=track.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
                     //add the cds id to the gene to redirect on click to the gene page
                     gene.name=row['cdsid'];
                     gene.onMouseover = row['cdsid'];
                     gene.onClick="./view.php?id="+row['cid']+"&type=pep";
+                    flag=1;
                 });
                 
                 // Draw Chart
