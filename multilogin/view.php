@@ -20,7 +20,7 @@ if(isset($_GET['id']) && isset($_GET['type'])){
         die($e->getMessage());
     }
 }
-
+//get the organism name from a peptide
 function getName($id){
     global $myPDO;
     $query="SELECT name, genome.id FROM genome, pep WHERE pep.chromid=genome.chromid AND pepid=:id;";
@@ -34,6 +34,7 @@ function getName($id){
     }
     return $res;
 }
+//return the genes sequence
 function getCDSseq($id){
     global $myPDO;
     $query="SELECT sequence FROM cds WHERE cdsid=:id;";
@@ -62,6 +63,15 @@ function getCDSseq($id){
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 <script src="./assets/Scribl.1.1.4.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="./assets/dragscrollable.js"></script>
+
+
+
+     
+      <link rel="stylesheet" id="themeCSS" href="http://chmille4.github.com/Scribl/css/iThing.css"> 
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+      <script src="http://static.tumblr.com/fcdode8/Giymeu17u/jquery.mousewheel.min.js"></script>
+      <script src="http://static.tumblr.com/fcdode8/WVbmeu18t/jqallrangesliders-min.js"></script>
 
 <style>
 		   #scribl-zoom-slider {
@@ -164,6 +174,7 @@ if($type=="genome"){
             }
             return result;
         }
+        //hide genome info/show sequence
         function showSeq(){
             var tab=document.getElementById("view");
             var seqV=document.getElementById("seqView");
@@ -185,19 +196,20 @@ if($type=="genome"){
 <?php
 //check if genome
 if($type=="genome"){
-    
+    //select all the  genes from the genome
     $sql="SELECT DISTINCT location, cdsid, cds.id as cid FROM cds, genome WHERE cds.chromid=:id;";
     try{
         $stmt=$myPDO->prepare($sql);
         $stmt->bindParam(":id", $res['chromid'], PDO::PARAM_INT);
         $stmt->execute();
         $genes=$stmt;
+        $nbgenes=$stmt->rowCount();
     }catch(PDOException $e){
         die($e->getMessage());
     }
-    $dat=$genes->fetchAll();
-    //print($dat[0]['cdsid']);
-    $json=json_encode($dat, JSON_PRETTY_PRINT);
+    $data=$genes->fetchAll();
+    //put the results in json for javascript use
+    $json=json_encode($data, JSON_PRETTY_PRINT);
 ?>
 <div style="margin-left:auto; padding-left:20px; padding-bottom:10px">
 <input type="button" class="btn btn-outline-dark btn-xs" value="Show seq/info" id="btn_view" name="view_btn" onclick="showSeq()">
@@ -205,7 +217,6 @@ if($type=="genome"){
 <div id="seqView" style="display:none">
 
             <h4>Sequence</h4>
-            
                 <table>
                 <tr>
                 <span style="width:400px; word-wrap:break-word; display:inline-block; font-family:monospace"> 
@@ -236,17 +247,7 @@ if($type=="genome"){
         </tr>
         <tr>    
             <th>Number of genes</th>
-            <td><?php
-            $query="select count(cdsid) from cds, genome where genome.chromid=cds.chromid and genome.id=:id;";
-            try{
-                $stmt=$myPDO->prepare($query);
-                $stmt->bindParam(":id", $res['id'], PDO::PARAM_INT);
-                $stmt->execute();
-                echo($stmt->fetch()['count']);
-            }catch(PDOException $e){
-                die($e->getMessage());
-            }
-            ?>
+            <td><?php echo $nbgenes;?>
             </td>
         </tr>
        
@@ -265,20 +266,23 @@ if($type=="genome"){
 <!----------------------------------------------------------------------GENOME VIEW ---------------------------------------------------------------------------->
 <script>
     var res=<?php echo $json;?>;
+    //create the chart containing the genes
     function draw(canvasName) {  
-				
 				// Get Canvas and Create Chart
 			  	var canvas = document.getElementById(canvasName);  	
-				
 				// Create Chart
-                chart = new Scribl(canvas, 500);
-                // Get gene location and orientation
+                chart = new Scribl(canvas, 10000);
+                //adjust the sizes
                 chart.laneSizes=70;
                 chart.laneBuffer=10;
                 chart.trackBuffer=1;
                 chart.trackSizes=5;
+                chart.scale.auto=false;
+
                 track=chart.addTrack().addLane();
+                //add each genes from the genome on a track
                 res.forEach(row => {
+                    //get the location, size and orientation of the genes
                     var loc=row['location'].split(" ");
                     var size=parseInt(loc[1])-parseInt(loc[0])+1;
                     if(loc[2]=="1"){
@@ -286,25 +290,53 @@ if($type=="genome"){
                     }else{
                         var or="-";
                     }
+
                     gene=track.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
-                    //gene = chart.addGene(parseInt(loc[0]), size, or);
+                    //add the cds id to the gene to redirect on click to the gene page
                     gene.name=row['cdsid'];
                     gene.onMouseover = row['cdsid'];
                     gene.onClick="./view.php?id="+row['cid']+"&type=pep";
                 });
                 
                 // Draw Chart
-                chart.scrollable=true;
-                chart.scrollValues=[0, 250000]
-				chart.draw();
+                //chart.scrollable=true;
+                //chart.scrollValues=[0, 250000];
+               // chart.draw();
+               //call the redraw
+                chart.redraw(0, 200000);
+        }
+        //redraw the chart with the new value from the slider
+        function redraw(min, max){
+            //redraw the chart on call
+            chart.scale.min=min;
+            chart.scale.max=max;
+            chart.redraw();
         }
         
 </script>
-<div >
-<canvas id="canvas" style="margin-right:auto; margin-left:auto" width="1500" height="250"></canvas>
+<div class="row"><h4 style="margin-left:auto; margin-right:auto; padding-bottom:20px">Genomes Visualization</h4></div>
+<div class="row">
+    <!--Canvas with the genes-->
+    <canvas id="canvas" style=" margin-left:auto; margin-right:auto;" width="1000px" height="250"></canvas>
+    <!--Slider to browse the genome-->
+    <div id="slider" style="width:1230px;margin-left:auto;margin-right:auto"></div>
 </div>
 
 </div><!-- div all ---->
+<script>
+      // initialize slider
+      $("#slider").editRangeSlider({ bounds:{min: 1, max: 6000000}, defaultValues:{min: 100000, max: 200000}, wheelMode: "zoom" });
+
+      // make slider redraw Scribl chart with every change
+      $("#slider").on("valuesChanging", function(e, data){
+        redraw(data.values.min, data.values.max);
+      });
+
+      // handle the changing of the edit boxes as well
+      $("#slider").on("valuesChanged", function(e, data){
+        redraw(data.values.min, data.values.max);
+      });
+    </script>
 <?php
 //end if type genome
 }else{//-----------------------------------------------------------------------PEPTIDE----------------------------------------------------------------------------------------
@@ -391,8 +423,9 @@ if($type=="genome"){
 <div class="col" style="float:right">
 <table class="col-md-25">
 <tr><th>Access external ressources</th></tr>
+<!-- Access the protein database with the current protein-->
 <tr><td><a href="https://www.ncbi.nlm.nih.gov/protein/<?php echo $res['pepid'];?>">Protein DB</a></td></tr>
-
+<!-- Access genome database with the current genome -->
 <tr><td><a href="https://www.ncbi.nlm.nih.gov/genome/?term=<?php echo $res['chromid'];?>">Genome DB</a></td></tr>
 </table>
 </div>
