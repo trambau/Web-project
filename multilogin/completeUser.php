@@ -1,5 +1,5 @@
 <?php
-
+//Get all the email matching with the input from the user
 function getemail(){
     try {
         

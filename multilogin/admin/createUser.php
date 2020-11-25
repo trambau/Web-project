@@ -90,6 +90,7 @@ if (!isAdmin()) {
 
 <br>
 <body style="background-color:#f2f2f2">
+      <!-------------------------Form for the user informations------------------------------------->
     <div class="wrapper">
         <h2>Create new user</h2>
         <p>Please fill this form to create an account.</p>

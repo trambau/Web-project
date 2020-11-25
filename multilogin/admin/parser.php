@@ -1,10 +1,9 @@
-
-<?php include('../functions.php');
-if (!isAdmin()) {
+<?php include('../functions.php'); 
+if (!isAdmin()) { //check if user is admin
 	$_SESSION['msg'] = "You must log in first";
 	header('location: ../login.php');
 }
-if (isset($_GET['logout'])) {
+if (isset($_GET['logout'])) { //check user try to logout
 	session_destroy();
 	unset($_SESSION['user']);
 	header("location: ../login.php");
@@ -21,7 +20,7 @@ if (isset($_GET['logout'])) {
 <title>Add data</title>
 </head>
 <body>
-  <!-------TOPNAV---------------------------->
+  <!----------------------------------------TOPNAV---------------------------->
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:black">
   <a class="navbar-brand" href="../index.php"><h4 style="margin:0px">LOGO</h4></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,7 +30,7 @@ if (isset($_GET['logout'])) {
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <!----------------HOME for admin or users----------------->
+        <!-------------------------------------------HOME for admin or users----------------->
         <?php
         if(isAdmin()){
         ?>
@@ -43,7 +42,7 @@ if (isset($_GET['logout'])) {
         <?php
         }
         ?>
-        <!--------------------------->
+        <!--------------------------------------------------------------->
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -87,7 +86,7 @@ if (isset($_GET['logout'])) {
     </div>
 
   </div>
-</nav><!-------------------END TOPNAV---------------------------->
+</nav><!---------------------------------END TOPNAV---------------------------->
 <br>
     <h4> Enter the absolute path of the directory with the fasta files.</h4>
     <form action="<?php $_SERVER['PHP_SELF'];?>" method="post">

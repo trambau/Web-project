@@ -349,6 +349,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
     
 return [$res, $resList];
 }
+//Download the only the wanted parameters from the results
 function Download($list){
     header('Content-Type: text/plain');
     header("Content-disposition: attachment; filename=results.txt");

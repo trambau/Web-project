@@ -1,5 +1,5 @@
 <?php
-
+//get the name matching the user input
 function getName(){
     try {
         

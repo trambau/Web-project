@@ -181,7 +181,7 @@ function getUserById($id){
     }  
 	return $user;
 }	
-//check if looged in
+//check if logged in
 function isLoggedIn()
 {
 	if (isset($_SESSION['user'])) {
@@ -209,7 +209,7 @@ if (isset($_POST['login_btn'])) {
 
 // LOGIN USER
 function login(){
-	global $myPDO, $email, $errors, $email_er, $password_er, $account_er;
+	global $myPDO, $email, $email_er, $password_er, $account_er;
 
 	// grap form values
 	$email = trim($_POST['email']);
@@ -316,6 +316,7 @@ function totalUsers () {
     }
     return $numRows;
 }
+
 function test ($int){
     echo "test".$int;
 }
@@ -569,8 +570,6 @@ function parseFile ($file){
 
 
 
-
-//NEED TO BE DELETED???
 //check if genome annotated and valid it
 function validGenome(){
     global $myPDO;

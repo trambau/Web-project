@@ -4,6 +4,7 @@
 		$_SESSION['msg'] = "You must log in first";
 		header('location: ../login.php');
 	}
+	//return to index page if not a validator
 	if(!isValidator()){
 		header('location:../index.php');
 	}
