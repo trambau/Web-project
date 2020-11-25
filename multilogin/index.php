@@ -159,7 +159,7 @@ $path="index.php";
 if(isAnnotator()){//---------Annotator display
 ?>
 <div class="row" style="padding:15px; overflow:hidden" >
-<h4><i class="fa fa-angle-right"></i> Sequuences To Annotate</h4>
+<h4><i class="fa fa-angle-right"></i> Sequences To Annotate</h4>
 <iframe src="./annotator/annotation.php" height="700" width="1800" frameborder="0" marginwidth="10" marginheight="0"></iframe>
 </div>
 <?php //end if annotator

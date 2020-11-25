@@ -77,7 +77,7 @@ function getCDSseq($id){
 		   #scribl-zoom-slider {
 		      width: 15px;
 		   }
-		</style>
+</style>
 </header>
 <?php
 //check if genome
@@ -436,6 +436,11 @@ if($type=="genome"){
 <tr><td><a href="https://www.ncbi.nlm.nih.gov/protein/<?php echo $res['pepid'];?>">Protein DB</a></td></tr>
 <!-- Access genome database with the current genome -->
 <tr><td><a href="https://www.ncbi.nlm.nih.gov/genome/?term=<?php echo $res['chromid'];?>">Genome DB</a></td></tr>
+</table>
+<table class="col-md-25">
+    <tr><th>Protein Alignment</th></tr>
+    <!--<tr><td><a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=put&QUERY=<?php echo $res['pepid'];?>&PROGRAM=blastp&DATABASE=nr&FORMAT_TYPE=HTML&FILTER=T">Blast</a></td></tr>-->
+    <tr><td><a href="./blast.php?ID=<?php echo $res['pepid'];?>">Blast</a></td></tr>
 </table>
 </div>
 
