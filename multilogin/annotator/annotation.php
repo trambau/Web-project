@@ -129,8 +129,8 @@ $path="annotation.php";
 
 			<tr>
 			
-				<td onclick="window.parent.location.href='../view.php?id=<?php echo $row['pid'];?>&type=pep'"><u style=color:dark-blue"><?php echo $row['annotid'];?></u></td>
-				<td onclick="window.parent.location.href='../view.php?id=<?php echo $row['gid'];?>&type=genome'"><u style=color:dark-blue"><?php echo $row['name'];?></u></td>
+				<td style="cursor:pointer" onclick="window.parent.location.href='../view.php?id=<?php echo $row['pid'];?>&type=pep'"><u style=color:dark-blue"><?php echo $row['annotid'];?></u></td>
+				<td style="cursor:pointer" onclick="window.parent.location.href='../view.php?id=<?php echo $row['gid'];?>&type=genome'"><u style=color:dark-blue"><?php echo $row['name'];?></u></td>
 				<form action="<?php echo $_SERVER['PHP_SELF'];?>?upid=<?php echo $row['annotid'];?>" method="post">
 				<td><input class="form-control" type="text" name="geneid" value="<?php echo $row['geneid'];?>"></td>
 				<td><input class="form-control" type="text" name="geneT" value="<?php echo $row['genetype'];?>"></td>

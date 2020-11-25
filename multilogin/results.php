@@ -148,25 +148,26 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         if(!empty($_GET['search'])){
             
         $search="%".$_GET['search']."%";
-        $query="(SELECT pep.id, name, pepid, location, pep.chromid FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        $query="(SELECT pep.id, name, pepid, location, pep.chromid FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pepid ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pepid ILIKE :s ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pep.chromid ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND pep.chromid ILIKE :s ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND location ILIKE :s ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep WHERE genome.chromid=pep.chromid AND location ILIKE :s ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND geneid ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND geneid ILIKE :s AND annotid=pepid ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND transcript ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat) 
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND transcript ILIKE :s AND annotid=pepid ORDER BY pep.id) 
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND genetype ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND genetype ILIKE :s AND annotid=pepid ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND transcrypttype ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND transcrypttype ILIKE :s AND annotid=pepid ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND symbol ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND symbol ILIKE :s AND annotid=pepid ORDER BY pep.id)
         UNION
-        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND description ILIKE :s AND annotid=pepid ORDER BY pep.id LIMIT :nbres OFFSET :startat)
+        (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND description ILIKE :s AND annotid=pepid ORDER BY pep.id)
+        LIMIT :nbres OFFSET :startat
         ;";
         /*
         $query2="SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s
@@ -234,7 +235,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             die($e->getMessage());
         }
     }elseif(empty($name) && empty($loc) && empty($seq)&& empty($geneid)&& empty($geneB)&& empty($des)&& empty($id)&& empty($trans)&& empty($transB)&& empty($symbole) && empty($genomeid)){
-        $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid LIMIT :nbres OFFSET :startat;";
+        $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid ORDER BY pep.id ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
        
         try{
             $stmt=$myPDO->prepare($query);
@@ -274,8 +275,11 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             if(!empty($search)){
                 
                 //query with parameter and sequence pep
-            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pep.chromid=genome.chromid AND pepid=annotid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
+            $query="(SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pep.chromid=genome.chromid AND pepid=annotid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par) ORDER BY pep.id)
+                    INTERSECT 
+                    (SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq ORDER BY pep.id)
+                    LIMIT :nbres OFFSET :startat;";
+                    
             /*
             $query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
@@ -286,7 +290,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             }else{
                
                 //query with just the sequence pep
-                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
+                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
                 //$query2="SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
 
                 $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, annot, genome WHERE pepid=cdsid and pepid=annotid and genome.chromid=pep.chromid and pep.sequence ILIKE :seq;";
@@ -295,10 +299,12 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         }else{//cds
             //check if there are input parameters other than sequence
             if(!empty($search)){
-                
+                echo "test";
                 //query with parameters and gene sequence
-            $query="SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid LIMIT :nbres OFFSET :startat;";
+            $query="(SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '|| pepid ||' '|| geneid ||' '|| transcript ||' '|| genetype ||' '|| transcrypttype ||' '|| symbol ||' '|| description) @@ plainto_tsquery(:par) ORDER BY pep.id)
+                    INTERSECT 
+                    (SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid ORDER BY pep.id)
+                    LIMIT :nbres OFFSET :startat ;";
             /*$query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pep.id FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";
             */
@@ -309,7 +315,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             }else{
                 
                 //query with the gene sequence only
-                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE cdsid=pepid AND cds.chromid=genome.chromid AND cds.sequence ILIKE :seq LIMIT :nbres OFFSET :startat;";
+                $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE cdsid=pepid AND cds.chromid=genome.chromid AND cds.sequence ILIKE :seq ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
                 //query to get the number of row
                 //$query2="SELECT pep.id FROM pep, cds WHERE cds.sequence ILIKE :seq AND cdsid=pepid;";
 

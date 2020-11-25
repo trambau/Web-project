@@ -359,7 +359,7 @@ if($type=="genome"){
     <tbody>
         <tr>
             <th>Strain</th>
-            <td onclick="location.href='view.php?id=<?php echo(getName($res['pepid'])['id']);?>&type=genome'"><u style="color:darkblue"><?php  echo(getName($res['pepid'])['name']); ?></u></td>
+            <td style="cursor:pointer" onclick="location.href='view.php?id=<?php echo(getName($res['pepid'])['id']);?>&type=genome'"><u style="color:darkblue"><?php  echo(getName($res['pepid'])['name']); ?></u></td>
         </tr>
         <tr>    
             <th>protein ID</th>
@@ -367,7 +367,7 @@ if($type=="genome"){
         </tr>
         <tr>    
             <th>Chromosome ID</th>
-            <td onclick="location.href='view.php?id=<?php echo(getName($res['pepid'])['id']);?>&type=genome'"><u style="color:darkblue"><?php echo $res['chromid'];?></u></td>
+            <td style="cursor:pointer" onclick="location.href='view.php?id=<?php echo(getName($res['pepid'])['id']);?>&type=genome'"><u style="color:darkblue"><?php echo $res['chromid'];?></u></td>
         </tr>
         
         <?php 
