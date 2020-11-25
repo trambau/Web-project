@@ -127,7 +127,9 @@ if(isset($_GET['uid'])){
       <br>
       <small><a href="../search.php" style="color:white">advanced search</a></small>
 	   </div> 
+	   <div style="padding-bottom:14px">
 	   <input type="submit" class="btn btn-outline-light" value="Search">
+	   </div>
     </form>
     </div>
 
