@@ -43,7 +43,6 @@ function updateAnnot($geneid, $geneT, $trans, $transT, $symbol, $des, $id){
 
 //UPDATE annotation
 if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
-	var_dump($_GET['upid']);
 	updateAnnot( $_POST['geneid'], $_POST['geneT'],$_POST['trans'], $_POST['transT'], $_POST['symbol'], $_POST['des'], $_GET['upid']);
 	/*
 	global $myPDO; 

@@ -144,14 +144,14 @@ $path="index.php";
 	
 <!---------------------IFRAME PART---------------->
 <div class="row">
-<div class="col">
-<h4><i class="fa fa-angle-right"></i> Sequences in wait</h4>
-<iframe src="./validator/assign.php" height="700" width="900" frameborder="0" marginwidth="10" marginheight="0"></iframe>
-</div>
-<div class="">
-<h4><i class="fa fa-angle-right"></i>Annotations to check</h4>
-<iframe src="./validator/review.php" frameborder="0" height="700" width="1000"></iframe>
-</div>
+  <div class="col">
+  <h4><i class="fa fa-angle-right"></i> Sequences in wait</h4>
+  <iframe src="./validator/assign.php" height="700" width="900" frameborder="0" marginwidth="10" marginheight="0"></iframe>
+  </div>
+  <div class="col">
+  <h4><i class="fa fa-angle-right"></i>Annotations to check</h4>
+  <iframe src="./validator/review.php" frameborder="0" height="700" width="900"></iframe>
+  </div>
 </div>
 <!---------------------------------REVIEW------------------->
 
