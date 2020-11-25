@@ -25,8 +25,6 @@ if(!empty($_GET['rid'])){
 }
 function updateAnnot($geneid, $geneT, $trans, $transT, $symbol, $des, $id){
 	global $myPDO; 
-	print("id=".$id."\t");
-	print("des = ".$des);
 	$query="UPDATE annot SET geneid=:geneid, transcript=:trans, genetype=:geneT, transcrypttype=:transT, symbol=:symbol, description=:des WHERE annotid=:upid;";
 	try{
 		$stmt=$myPDO->prepare($query);
