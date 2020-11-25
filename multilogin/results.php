@@ -626,7 +626,7 @@ Results
       <br>
       <small><a href="search.php" style="color:white">advanced search</a></small>
 	   </div> 
-       <div style="padding-bottom:14px">
+       <div style="padding-bottom:3%">
 	   <input type="submit" class="btn btn-outline-light" value="Search">
        </div>
     </form>
