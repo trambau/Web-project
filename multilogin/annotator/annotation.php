@@ -23,9 +23,10 @@ if(!empty($_GET['rid'])){
 		die($e->getMessage());
 	}
 }
-function updateAnnot($geneid, $geneT, $trans, $symbol, $des, $id){
-	test($geneid);
+function updateAnnot($geneid, $geneT, $trans, $transT, $symbol, $des, $id){
 	global $myPDO; 
+	print("id=".$id."\t");
+	print("des = ".$des);
 	$query="UPDATE annot SET geneid=:geneid, transcript=:trans, genetype=:geneT, transcrypttype=:transT, symbol=:symbol, description=:des WHERE annotid=:upid;";
 	try{
 		$stmt=$myPDO->prepare($query);
@@ -44,6 +45,7 @@ function updateAnnot($geneid, $geneT, $trans, $symbol, $des, $id){
 
 //UPDATE annotation
 if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
+	var_dump($_GET['upid']);
 	updateAnnot( $_POST['geneid'], $_POST['geneT'],$_POST['trans'], $_POST['transT'], $_POST['symbol'], $_POST['des'], $_GET['upid']);
 	/*
 	global $myPDO; 
