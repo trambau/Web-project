@@ -170,7 +170,7 @@ if(isAnnotator()){//---------Annotator display
 ?>
 <!--------------------TABLE with the annotation in work -------------------->
 <div class="row">
-<div class="table-responsive col-md-8">
+<div class="table-responsive col-md-12">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i>Current Annotations</h4>
 		<hr>
