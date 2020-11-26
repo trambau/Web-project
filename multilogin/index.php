@@ -56,7 +56,11 @@ $path="index.php";
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-
+<script>
+  function resizeIframe(obj) {
+    obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+  }
+</script>
 </head>
 <body>
 <!-------TOPNAV---------------------------->
@@ -150,7 +154,7 @@ $path="index.php";
   </div>
   <div class="col">
   <h4><i class="fa fa-angle-right"></i>Annotations to check</h4>
-  <iframe src="./validator/review.php" frameborder="0" height="700" width="900"></iframe>
+  <iframe src="./validator/review.php" frameborder="0" height="auto" scrolling="no" onload="resizeIframe(this)" width="900"></iframe>
   </div>
 </div>
 <!---------------------------------REVIEW------------------->
@@ -162,7 +166,7 @@ if(isAnnotator()){//---------Annotator display
 ?>
 <div class="row" style="padding:15px; overflow:hidden" >
 <h4><i class="fa fa-angle-right"></i> Sequences To Annotate</h4>
-<iframe src="./annotator/annotation.php" height="700" width="1800" frameborder="0" marginwidth="10" marginheight="0"></iframe>
+<iframe src="./annotator/annotation.php" width="1800" frameborder="0" scrolling="no" onload="resizeIframe(this)" marginwidth="10" marginheight="0"></iframe>
 </div>
 <?php //end if annotator
 }
