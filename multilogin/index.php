@@ -169,6 +169,7 @@ if(isAnnotator()){//---------Annotator display
 //else{//-------------------------User role user-------------------
 ?>
 <!--------------------TABLE with the annotation in work -------------------->
+<div class="row">
 <div class="table-responsive col-md-8">
 	<table class="table table-striped table-advance table-hover">
 	<h4><i class="fa fa-angle-right"></i>Current Annotations</h4>
@@ -229,7 +230,8 @@ if(isAnnotator()){//---------Annotator display
 			?>
 		</tbody>
 	</table>
-</div>			
+</div>	
+</div>		
  <!--------------------------PAGINATION------------------------>
  <?php
   if($totpage>1){//check if there are more than one page
