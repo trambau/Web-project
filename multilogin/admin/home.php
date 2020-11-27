@@ -150,6 +150,7 @@ if(isset($_GET['uid'])){
 			<th>Role</th>
 			<th>Last Login</th>
 			<th>Valid</th>
+			<th>Delete</th>
 		</tr>
 		</thead>
 	<tbody>
