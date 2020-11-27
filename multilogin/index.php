@@ -23,10 +23,8 @@ if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
 	}
 	}catch(Exception $e){
 		die($e->getMessage());
-	}
+  }
 }
-
-
 //------------PAGE--------------
 $nbres=8;
 $totpage;
@@ -149,7 +147,7 @@ $path="index.php";
 <!---------------------IFRAME PART---------------->
 <div class="row">
   <div class="col">
-  <h4><i class="fa fa-angle-right"></i> Sequences in wait</h4>
+  <h4><i class="fa fa-angle-right"></i> Sequences in waiting</h4>
   <iframe src="./validator/assign.php" height="700" width="900" frameborder="0" marginwidth="10" marginheight="0"></iframe>
   </div>
   <div class="col">

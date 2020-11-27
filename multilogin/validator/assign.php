@@ -26,7 +26,9 @@ if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
 	}
 	}catch(Exception $e){
 		die($e->getMessage());
-	}
+    }
+    $headers = 'From: no-reply@annotations.cf';
+    mail($id, "Assigned Sequence", "You have been assigned a sequence.", $headers);
 }
 
 //------------PAGE--------------

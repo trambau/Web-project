@@ -141,3 +141,8 @@ SELECT pepid, cdsid, pep.location, pep.sequence, cds.sequence, name, pep.chromid
                 <?php
                 }
                 ?>*/
+BEGIN TRANSACTION;
+update annot set annotator=NULL where annotator=4;
+delete from users where users.id=4; 
+COMMIT;
+END TRANSACTION;

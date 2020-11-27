@@ -15,14 +15,14 @@ if (isset($_GET['logout'])) {
 if(isset($_GET['id'])){
 	global $myPDO;
 	$id=$_GET['id'];
-	$query="DELETE FROM users WHERE id=:id;";
+	$query="BEGIN TRANSACTION;
+			UPDATE annot SET annotator=NULL WHERE annotator=$id;
+			DELETE FROM users WHERE users.id=$id; 
+			COMMIT;
+			END TRANSACTION;
+			";
 	try{
-		$stmt=$myPDO->prepare($query);
-
-		$stmt->bindParam(":id", $id, PDO::PARAM_INT);
-		
-		$stmt->execute();
-		
+		$stmt=$myPDO->exec($query);
 		if($stmt){
 			echo "<script>alert('Data deleted');</script>";
 	}

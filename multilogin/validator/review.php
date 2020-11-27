@@ -13,6 +13,17 @@ if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 	global $myPDO;
 	$id=$_GET['annotationid'];
 	$com=$_GET['comment'];
+	$sql="SELECT email FROM users, annot WHERE annotid=:id AND annotator=users.id;";
+	try{
+		$st=$myPDO->prepare($sql);
+		$st->bindParam(":id", $id, PDO::PARAM_STR);
+		$st->execute();
+		$res=$st->fetch();
+		$email=$res["email"];
+	}
+	catch(PDOException $e){
+		die($e->getMessage());
+	}
 	$query="UPDATE annot SET geneid='', transcript='', genetype='', transcrypttype='', symbol='', description=:com, upreview=0 WHERE annotid=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
@@ -22,12 +33,25 @@ if(!empty($_GET['annotationid']) && isset($_GET['comment'])){
 	}catch(PDOException $e){
 		die($e->getMessage());
 	}
+	
+    $headers = 'From: no-reply@annotations.cf';
+    mail($email, "Rejected annotations", "Your annotation has been rejected.\nReasons:".$com, $headers);
 }
 
 //VALIDATE the annotation and put them in the DATABASE
 if(!empty($_GET['aid'])){
 	global $myPDO;
 	$id=$_GET['aid'];
+	$sql="SELECT email FROM users, annot WHERE annot.id=:id AND annotator=users.id;";
+	try{
+		$st=$myPDO->prepare($sql);
+		$st->bindParam(":id", $id, PDO::PARAM_INT);
+		$st->execute();
+		$res=$st->fetch();
+		$email=$res["email"];
+	}catch(PDOException $e){
+		die($e->getMessage());
+	}
 	$query="UPDATE annot SET validated=1 WHERE id=:id;";
 	try{
 		$stmt=$myPDO->prepare($query);
@@ -36,6 +60,8 @@ if(!empty($_GET['aid'])){
 	}catch(PDOException $e){
 		die($e->getMessage());
 	}
+    $headers = 'From: no-reply@annotations.cf';
+    mail($email, "Accepted Annotations", "Your annotation has been accepted.", $headers);
 }
 
 //------------PAGE--------------
