@@ -1,4 +1,6 @@
 <?php
+
+//template
 session_start();
 include('functions.php');
 if (!isLoggedIn()) {
@@ -42,8 +44,13 @@ if(empty($seq_er)){
     }
 }
 ?>
+//template end
+
+
 <!DOCTYPE html>
 <html>
+	
+//page style
 <header>
     <style>
     .wrapper{ width: 350px; padding: 20px; }
@@ -57,6 +64,11 @@ if(empty($seq_er)){
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </header>
+//page style end	
+	
+
+	
+//Body of Search.php	
 <title>Search</title>
 <body>
   <!-------TOPNAV---------------------------->
@@ -133,6 +145,8 @@ if(empty($seq_er)){
 
   </div>
 </nav>
+	
+	
 <script>
 function yesnoCheck(that) {
     if (that.value == "other") {
@@ -143,6 +157,8 @@ function yesnoCheck(that) {
     }
 }
 </script>
+	
+	
 <div class="wrapper">
 <h2>Search complete  genome or peptides/genes</h2>
 <form action="<?php $_SERVER['PHP_SELF'];?>" method="post">
