@@ -178,8 +178,18 @@ $(function() {
 
     <div class="form-group">
         <label>ID genome:</label> 
-        <input type="text" value="<?php echo $genomeid;?>" class="form-control" name="genomeID" placeholder="ASM...">
+        <input type="text" value="<?php echo $genomeid;?>" class="form-control" name="genomeID" id="genomeID" placeholder="ASM...">
     </div>
+    <script type="text/javascript">
+$(function() {
+    //autocomplete
+    $("#genomeID").autocomplete({
+        source: "autocompleteGenome.php",
+        minLength: 1
+    });                
+
+});
+</script>
     <div class="form-group">
         <label>Location:</label> 
         <input type="text" value="<?php echo $loc;?>" name="location" placeholder="1:546..." class="form-control">
@@ -196,15 +206,24 @@ $(function() {
     
     </select>
     <br>
-
     <div id="ifYes" style="display: none;">
+        <div class="form-group">
+            <label>Peptide ID</label> 
+            <input type="text" name="id" value="<?php echo $id;?>" class="form-control" id="peptideID" placeholder="ex:AAN78501">
+        </div>
+        <script type="text/javascript">
+$(function() {
+    //autocomplete
+    $("#peptideID").autocomplete({
+        source: "autocompletePepId.php",
+        minLength: 3
+    });                
+
+});
+</script>
         <div class="form-group">
             <label>Gene Id</label>
             <input type="text" name="geneID" value="<?php echo $gene;?>" class="form-control" placeholder="ex:c5491">
-        </div>
-        <div class="form-group">
-            <label>ID</label> 
-            <input type="text" name="id" value="<?php echo $id;?>" class="form-control" placeholder="ex:AAN78501">
         </div>
         <div class="form-group">
             <label>Gene biotype</label> 
