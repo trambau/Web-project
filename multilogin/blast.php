@@ -14,7 +14,6 @@ if(isset($_GET['NB']) && $_GET['NB']>1){
 if(empty($_GET['RID'])&& isset($_GET['ID'])){
     $id=$_GET['ID'];
     $cmd="curl -sL 'https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY=$id&PROGRAM=blastp&FILTER=L&DATABASE=nr&FORMAT_TYPE=XML' | grep 'RID = '";
-    //curl -sL 'https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY=AAN78603&PROGRAM=blastp&FILTER=L&DATABASE=nr&FORMAT_TYPE=XML' | grep 'RID = '
     set_time_limit(0);
     $res=shell_exec($cmd);
     $rid=explode(' ', $res);
@@ -41,8 +40,7 @@ if($flag2==1){
     <link rel="stylesheet" href="./assets/bootstrap.css"> 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+  <script type="text/javascript" src="assets/bootstrap.min.js"></script>
     </header>
    <body>
    <!-----------------TOPNAV------------------------------>

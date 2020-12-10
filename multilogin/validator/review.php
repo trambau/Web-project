@@ -83,7 +83,6 @@ $path="review.php";
 <html>
 <head>
 	<title>Home</title>
-	<!--<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">-->
 	<link rel="stylesheet" href="../assets/bootstrap.css"> 
 
 	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/minified/jquery-ui.min.css" type="text/css" /> 

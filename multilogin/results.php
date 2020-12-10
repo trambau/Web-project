@@ -169,28 +169,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         (SELECT pep.id, name, pepid, location, pep.chromid FROM genome,pep, annot WHERE genome.chromid=pep.chromid AND description ILIKE :s AND annotid=pepid ORDER BY pep.id)
         LIMIT :nbres OFFSET :startat
         ;";
-        /*
-        $query2="SELECT pep.id FROM genome, pep WHERE genome.chromid=pep.chromid AND name ILIKE :s
-        UNION
-        SELECT pep.id FROM pep WHERE pepid ILIKE :s
-        UNION
-        SELECT pep.id FROM pep WHERE pep.chromid ILIKE :s
-        UNION
-        SELECT pep.id FROM pep WHERE location ILIKE :s
-        UNION
-        SELECT pep.id FROM pep, annot WHERE geneid ILIKE :s AND annotid=pepid
-        UNION
-        SELECT pep.id FROM pep, annot WHERE transcript ILIKE :s AND annotid=pepid
-        UNION
-        SELECT pep.id FROM pep, annot WHERE genetype ILIKE :s AND annotid=pepid
-        UNION
-        SELECT pep.id FROM pep, annot WHERE transcrypttype ILIKE :s AND annotid=pepid
-        UNION
-        SELECT pep.id FROM pep, annot WHERE symbol ILIKE :s AND annotid=pepid
-        UNION
-        SELECT pep.id FROM pep, annot WHERE description ILIKE :s AND annotid=pepid
-        ;";
-        */
+  
         $query2="(SELECT DISTINCT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE pepid=cdsid and annotid=pepid and genome.chromid=pep.chromid AND name ILIKE :s)
         UNION
         (SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM genome, pep, annot, cds WHERE genome.chromid=pep.chromid AND pepid=cdsid AND annotid=pepid AND pepid ILIKE :s)
@@ -280,10 +259,6 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
                     (SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq ORDER BY pep.id)
                     LIMIT :nbres OFFSET :startat;";
                     
-            /*
-            $query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
-                */
             $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=cdsid and pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
                     INTERSECT SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=cdsid and pepid=annotid AND pep.chromid=genome.chromid and pep.sequence ILIKE :seq;";
 
@@ -305,9 +280,6 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
                     INTERSECT 
                     (SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid ORDER BY pep.id)
                     LIMIT :nbres OFFSET :startat ;";
-            /*$query2="SELECT pep.id FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
-                    INTERSECT SELECT pep.id FROM pep, cds, genome WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid;";
-            */
             
             $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, genome, annot, cds WHERE pepid=annotid AND pep.chromid=genome.chromid and pepid=cdsid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| pep.location ||' '||pepid||' '||geneid||' '||transcript||' '||genetype||' '||transcrypttype||' '||symbol||' '||description) @@ plainto_tsquery(:par)
                      INTERSECT SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, genome, annot WHERE pep.chromid=genome.chromid AND cds.sequence ILIKE :seq AND cdsid=pepid and pepid=annotid;";  
@@ -317,8 +289,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
                 //query with the gene sequence only
                 $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, cds, genome WHERE cdsid=pepid AND cds.chromid=genome.chromid AND cds.sequence ILIKE :seq ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
                 //query to get the number of row
-                //$query2="SELECT pep.id FROM pep, cds WHERE cds.sequence ILIKE :seq AND cdsid=pepid;";
-
+   
                 $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FroM cds, pep, annot, genome WHERE cdsid=pepid AND annotid=pepid AND pep.chromid=genome.chromid AND cds.sequence ILIKE :seq;";
 
 
@@ -471,7 +442,7 @@ Results
 <link rel="stylesheet" href="assets/bootstrap.css">     
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+      <script type="text/javascript" src="assets/bootstrap.min.js"></script>
 
 </header>
 <body>

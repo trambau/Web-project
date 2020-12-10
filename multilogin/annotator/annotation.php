@@ -44,22 +44,6 @@ function updateAnnot($geneid, $geneT, $trans, $transT, $symbol, $des, $id){
 //UPDATE annotation
 if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 	updateAnnot( $_POST['geneid'], $_POST['geneT'],$_POST['trans'], $_POST['transT'], $_POST['symbol'], $_POST['des'], $_GET['upid']);
-	/*
-	global $myPDO; 
-	$query="UPDATE annot SET geneid=:geneid, transcript=:trans, genetype=:geneT, transcrypttype=:transT, symbol=:symbol, description=:des WHERE annotid=:upid;";
-	try{
-		$stmt=$myPDO->prepare($query);
-		$stmt->bindParam(':geneid', $_POST['geneid'], PDO::PARAM_STR);
-		$stmt->bindParam(':geneT', $_POST['geneT'], PDO::PARAM_STR);
-		$stmt->bindParam(':trans', $_POST['trans'], PDO::PARAM_STR);
-		$stmt->bindParam(':transT', $_POST['transT'], PDO::PARAM_STR);
-		$stmt->bindParam(':symbol', $_POST['symbol'], PDO::PARAM_STR);
-		$stmt->bindParam(':des', $_POST['des'], PDO::PARAM_STR);
-		$stmt->bindParam(':upid', $_GET['upid'], PDO::PARAM_STR);
-		$stmt->execute();
-	}catch(PDOException $e){
-		die($e->getMessage());
-	}*/
 }
 //------------PAGE--------------
 $nbres=8;

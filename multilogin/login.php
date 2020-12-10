@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+    <link rel="stylesheet" href="assets/bootstrap.css">  
     <style type="text/css">
         body{ font: 14px sans-serif; }
         .wrapper{ width: 350px; padding: 20px; }
@@ -39,7 +39,7 @@
                 <input type="submit" class="btn btn-primary" value="Login" name="login_btn">
             </div>
 		
-<!--// if no existing account: link to register		-->
+<!-- if no existing account: link to register		-->
             <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
         </form>
     </div>

@@ -51,7 +51,7 @@ if(empty($seq_er)){
 <!DOCTYPE html>
 <html>
 	
-//page style
+<!--page style -->
 <header>
     <style>
     .wrapper{ width: 350px; padding: 20px; }
@@ -61,15 +61,14 @@ if(empty($seq_er)){
     <script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.min.js"></script>  
    
     <link rel="stylesheet" href="assets/bootstrap.css"> 
+    <script type="text/javascript" src="assets/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
 </header>
-//page style end	
+<!--page style end-->	
 	
 
 	
-//Body of Search.php	
+<!--Body of Search.php-->	
 <title>Search</title>
 <body>
   <!-------TOPNAV---------------------------->
