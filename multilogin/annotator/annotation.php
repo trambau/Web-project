@@ -46,7 +46,7 @@ if(isset($_POST['save-btn']) && !empty($_GET['upid'])){
 	updateAnnot( $_POST['geneid'], $_POST['geneT'],$_POST['trans'], $_POST['transT'], $_POST['symbol'], $_POST['des'], $_GET['upid']);
 }
 //------------PAGE--------------
-$nbres=8;
+$nbres=10;
 $totpage;
 if(isset($_GET['page'])){
     $page=$_GET['page'];
@@ -90,7 +90,7 @@ $path="annotation.php";
 			//GET the sequences to annotate
 			$query="SELECT DISTINCT annotid, name, pep.id as pid, genome.id as gid, geneid, transcript, genetype, transcrypttype, symbol, description 
 			FROM annot, pep, genome, users 
-            WHERE annotid=pepid AND pep.chromid=genome.chromid AND annotator=:id AND upreview=0;";
+            WHERE annotid=pepid AND pep.chromid=genome.chromid AND annotator=:id AND upreview=0 LIMIT :nbres OFFSET :startat;";
             $q2="SELECT annotid 
 			FROM annot, pep
             WHERE annotid=pepid AND annotator=:id AND upreview=0;";
@@ -98,12 +98,15 @@ $path="annotation.php";
 			try{
 				$stmt=$myPDO->prepare($query);
 				$stmt->bindParam(":id", $_SESSION['user']['id'], PDO::PARAM_STR);
+				$stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
+				$stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
 				$stmt->execute();
                 $s2=$myPDO->prepare($q2);
                 $s2->bindParam(":id", $_SESSION['user']['id'], PDO::PARAM_STR);
                 $s2->execute();
                 $nbrow=$s2->rowCount();
-                $totpage=ceil($nbrow/$nbres);
+				$totpage=ceil($nbrow/$nbres);
+				var_dump($totpage);
 			}catch(PDOException $e){
 				die($e->getMessage());
 			}

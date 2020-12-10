@@ -26,7 +26,7 @@ if(isset($_GET['uid']) && isset($_GET['pepid']) && !empty($_GET['uid'])){
   }
 }
 //------------PAGE--------------
-$nbres=8;
+$nbres=10;
 $totpage;
 if(isset($_GET['page'])){
     $page=$_GET['page'];
@@ -190,12 +190,14 @@ if(isAnnotator()){//---------Annotator display
 			//GET the sequences to annotate
 			$query="SELECT annotid, name, geneid, transcript, genetype, transcrypttype, symbol, description, email, genome.id as gid, pep.id as pid 
 			FROM annot, pep, genome, users 
-			WHERE annotid=pepid AND pep.chromid=genome.chromid AND validated=0 AND upreview=0 AND users.id=annotator;";
+			WHERE annotid=pepid AND pep.chromid=genome.chromid AND validated=0 AND upreview=0 AND users.id=annotator LIMIT :nbres OFFSET :startat;";
 			$q2="SELECT annotid
 			FROM annot, users 
 			WHERE validated=0 AND upreview=0 AND users.id=annotator;";
 			try{
-				$stmt=$myPDO->prepare($query);
+        $stmt=$myPDO->prepare($query);
+        $stmt->bindParam(":nbres", $nbres, PDO::PARAM_INT);
+        $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
 				$stmt->execute();
 				$s2=$myPDO->prepare($q2);
 				$s2->execute();
