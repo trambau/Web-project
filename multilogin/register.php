@@ -33,7 +33,7 @@
             </div> 
 			<div class="form-group <?php echo (!empty($role_er)) ? 'has-error' : ''; ?>">
 				<label>User role</label>
-				<select name="userRole" id="userRole" >
+				<select name="userRole" id="userRole" class="btn btn-mini btn-outline-dark">
 					<option value="utilisateur" <?php if($role=="utilisateur"){echo "selected";}?>>Utilisateur</option>
 					<option value="annotator" <?php if($role=="annotator"){echo "selected";}?>>Annotateur</option>
 					<option value="validator" <?php if($role=="validator"){echo "selected";}?>>Validateur</option>
