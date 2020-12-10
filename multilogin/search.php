@@ -43,8 +43,9 @@ if(empty($seq_er)){
         header('location: results.php');
     }
 }
-?>
 //template end
+?>
+
 
 
 <!DOCTYPE html>
