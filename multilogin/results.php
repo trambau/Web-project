@@ -312,7 +312,6 @@ function Download($list){
     header('Content-Type: text/plain');
     header("Content-disposition: attachment; filename=results.txt");
     set_time_limit(0);
-
     if(isset($_POST['name'])){
         print('name');
     }
@@ -358,7 +357,7 @@ function Download($list){
     print("\n");
 
     while($row=$list->fetch()){
-        
+         
         if(isset($_POST['name'])){
             print($row['name']);
         }
@@ -490,62 +489,63 @@ Results
             }else{
             echo $_SERVER["PHP_SELF"];
             }?>" method="post">
+
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="name" id="name" name="down">
+            <input class="form-check-input" type="checkbox" value="name" name="name" >
             <label class="form-check-label" for="name">Organism Name</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="id" id="id" name="down">
+            <input class="form-check-input" type="checkbox" value="id" name="id" >
             <label class="form-check-label" for="id">Chromosome ID</label>
             </div>
             <?php if($type=="genome"){ ?>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="loc" id="loc" name="down">
+            <input class="form-check-input" type="checkbox" value="loc" name="loc">
             <label class="form-check-label" for="loc">Location</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="seq" id="seq" name="down">
+            <input class="form-check-input" type="checkbox" value="seq" name="seq">
             <label class="form-check-label" for="seq">Sequence</label>
             </div>
-            <?php }else{?>
+            <?php } else {?>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="pepid" id="pepid" name="down">
+            <input class="form-check-input" type="checkbox" value="pepid" name="pepid">
             <label class="form-check-label" for="pepid">Peptide/CDS ID</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="loca" id="loca" name="down">
+            <input class="form-check-input" type="checkbox" value="loca" name="loca">
             <label class="form-check-label" for="loca">Location</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="geneid" id="geneid" name="down">
+            <input class="form-check-input" type="checkbox" value="geneid" name="geneid">
             <label class="form-check-label" for="geneid">Gene ID</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="trans" id="trans" name="down">
+            <input class="form-check-input" type="checkbox" value="trans" name="trans">
             <label class="form-check-label" for="trans">Transcript</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="transt" id="transt" name="down">
+            <input class="form-check-input" type="checkbox" value="transt" name="transt">
             <label class="form-check-label" for="transt">Transcript Type</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="genet" id="genet" name="down">
+            <input class="form-check-input" type="checkbox" value="genet" name="genet">
             <label class="form-check-label" for="genet">Gene Type</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="sym" id="sym" name="down">
+            <input class="form-check-input" type="checkbox" value="sym" name="sym">
             <label class="form-check-label" for="sym">Symbol</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="des" id="des" name="down">
+            <input class="form-check-input" type="checkbox" value="des" name="des">
             <label class="form-check-label" for="des">Description</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="seqp" id="seqp" name="down">
+            <input class="form-check-input" type="checkbox" value="seqp" name="seqp">
             <label class="form-check-label" for="seqp">Peptide Sequence</label>
             </div>
             <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" value="seqc" id="seqc" name="down">
+            <input class="form-check-input" type="checkbox" value="seqc" name="seqc">
             <label class="form-check-label" for="seqc">CDS Sequence</label>
             </div>
             <?php }?>
@@ -557,7 +557,7 @@ Results
             <input type="submit" class="btn btn-primary" value="Download" name="down_btn">
 <script>
     document.getElementById('select_all').onclick = function() {
-        var checkboxes = document.getElementsByName('down');
+        var checkboxes = document.getElementsByTagName('input');
         for (var checkbox of checkboxes) {
             checkbox.checked = this.checked;
         }
