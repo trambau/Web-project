@@ -305,7 +305,7 @@ if($type=="genome"){
         }
         
 </script>
-<div class="row"><h4 style="margin-left:auto; margin-right:auto; padding-bottom:20px">Genomes Visualization</h4></div>
+<div class="row"><h4 style="margin-left:auto; margin-right:auto; padding-bottom:20px">Genome Visualization</h4></div>
 <div class="row">
     <!--Canvas with the genes-->
     <canvas id="canvas" style=" margin-left:auto; margin-right:auto;" width="1000px" height="250"></canvas>
