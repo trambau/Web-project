@@ -53,16 +53,16 @@ function getCDSseq($id){
 <html>
 <title>View</title>
 <header>
-<link rel="stylesheet" href="assets/bootstrap.css"> 
-<script type="text/javascript" src="assets/bootstrap.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="./assets/Scribl.1.1.4.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="./assets/dragscrollable.js"></script>
-<link rel="stylesheet" id="themeCSS" href="http://chmille4.github.com/Scribl/css/iThing.css"> 
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-<script src="http://static.tumblr.com/fcdode8/Giymeu17u/jquery.mousewheel.min.js"></script>
-<script src="http://static.tumblr.com/fcdode8/WVbmeu18t/jqallrangesliders-min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.min.js"></script> 
+    <link rel="stylesheet" href="assets/bootstrap.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="assets/bootstrap.min.js"></script>
+    <script src="./assets/Scribl.1.1.4.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="./assets/dragscrollable.js"></script>
+    <link rel="stylesheet" id="themeCSS" href="http://chmille4.github.com/Scribl/css/iThing.css"> 
+    <script src="http://static.tumblr.com/fcdode8/Giymeu17u/jquery.mousewheel.min.js"></script>
+    <script src="http://static.tumblr.com/fcdode8/WVbmeu18t/jqallrangesliders-min.js"></script>
 
 <style>
 		   #scribl-zoom-slider {
