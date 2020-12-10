@@ -1,21 +1,11 @@
 <?php
+include("functions.php");
 //get the name matching the user input
 function getName(){
+    global $myPDO;
     try {
         
-        $datab="db";
-        $user="postgres";
-        $dbpswd="postgres";
-/*
-        $datab="sample";
-        $user="trambaud";
-        $dbpswd="trambaud";*/
-
-        $conn=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-
-        $stmt = $conn->prepare('SELECT name FROM genome WHERE name ILIKE :term ');
+        $stmt = $myPDO->prepare('SELECT name FROM genome WHERE name ILIKE :term ');
         $stmt->execute(array('term' => '%'.$_GET['term'].'%'));
         
         while($row = $stmt->fetch()) {

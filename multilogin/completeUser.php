@@ -1,19 +1,9 @@
 <?php
+include('functions.php');
 //Get all the email matching with the input from the user
 function getemail(){
+    global$myPDO;
     try {
-        
-        $datab="db";
-        $user="postgres";
-        $dbpswd="postgres";
-/*
-        $datab="sample";
-        $user="trambaud";
-        $dbpswd="trambaud";*/
-
-        $conn=new PDO("pgsql:host=localhost;dbname=$datab", $user, $dbpswd);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         //select user with at least annotator privileges
         $query="SELECT email FROM users WHERE email ILIKE :term
         INTERSECT(
@@ -21,7 +11,7 @@ function getemail(){
         UNION SELECT email FROM users WHERE userrole='validator'
         UNION SELECT email FROM users WHERE userrole='admin'
         );";
-        $stmt = $conn->prepare($query);
+        $stmt = $myPDO->prepare($query);
         $stmt->execute(array('term' => '%'.$_GET['term'].'%'));
         
         while($row = $stmt->fetch()) {

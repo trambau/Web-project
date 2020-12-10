@@ -214,7 +214,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             die($e->getMessage());
         }
     }elseif(empty($name) && empty($loc) && empty($seq)&& empty($geneid)&& empty($geneB)&& empty($des)&& empty($id)&& empty($trans)&& empty($transB)&& empty($symbole) && empty($genomeid)){
-        $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid ORDER BY pep.id ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
+        $query="SELECT pep.id, name, pepid, location, pep.chromid FROM pep, genome WHERE genome.chromid=pep.chromid ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
        
         try{
             $stmt=$myPDO->prepare($query);
@@ -225,7 +225,6 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         }catch(PDOException $e){
             die($e->getMessage());
         }
-        //$query2="select pep.id from pep;";
         $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, genome, annot WHERE cdsid=pepid and annotid=pepid and genome.chromid=pep.chromid;";
         try{
             $stmt2=$myPDO->prepare($query2);
@@ -439,10 +438,10 @@ if(isset($_POST['down_btn'])){
 Results
 </title>
 <header>
-<link rel="stylesheet" href="assets/bootstrap.css">     
-      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-      <script type="text/javascript" src="assets/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="assets/bootstrap.css">     
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="assets/bootstrap.min.js"></script>
 
 </header>
 <body>
