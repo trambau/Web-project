@@ -35,7 +35,6 @@ if(isset($_GET['page'])){
 }
 $startat=($page-1)*$nbres;
 $path="index.php";
-//---------------------------------
 //-------------------------HTML----------------------------------
 ?>
 
@@ -57,7 +56,7 @@ $path="index.php";
 </script>
 </head>
 <body>
-<!-------TOPNAV---------------------------->
+<!----------------------------TOPNAV---------------------------->
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:dodgerblue">
   <a class="navbar-brand" href="index.php"><h4 style="margin:0px">LOGO</h4></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +78,7 @@ $path="index.php";
         <?php
         }
         ?>
-        <!--------------------------->
+        <!--------------------------------------------------->
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

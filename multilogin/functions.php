@@ -304,19 +304,6 @@ function isAnnotator(){
 	}
 }
 
-function totalUsers () {
-    global $myPDO;
-    try{
-    $sql = "SELECT * FROM users;";
-    $stmt=$myPDO->prepare($sql);
-    $stmt->execute();
-    $numRows=$stmt->rowCount();
-    }catch(Exception $e){
-        die($e->getMessage());
-    }
-    return $numRows;
-}
-
 function test ($int){
     echo "test".$int;
 }

@@ -140,8 +140,6 @@ if($type=="genome"){
     <option value="pep">Peptide</option>
   </select>
       <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
-
-    
          </div>
       <br>
       <small><a href="search.php" style="color:white">advanced search</a></small>
@@ -154,10 +152,7 @@ if($type=="genome"){
 
   </div>
 </nav>
-
-
-
-    <br>
+<br>
     <script>
         function addNewlines(str) {
             var result = '';
@@ -292,18 +287,12 @@ if($type=="genome"){
                         gene=track.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
                     }
                     start=parseInt(loc[0]);
-                    //gene=track.addFeature( new BlockArrow("track", parseInt(loc[0]), size, or));
-                    //add the cds id to the gene to redirect on click to the gene page
                     gene.name=row['cdsid'];
                     gene.onMouseover = row['cdsid'];
                     gene.onClick="./view.php?id="+row['cid']+"&type=pep";
                     flag=1;
                 });
                 
-                // Draw Chart
-                //chart.scrollable=true;
-                //chart.scrollValues=[0, 250000];
-               // chart.draw();
                //call the redraw
                 chart.redraw(0, 200000);
         }
@@ -432,7 +421,6 @@ if($type=="genome"){
 </table>
 <table class="col-md-25">
     <tr><th>Protein Alignment</th></tr>
-    <!--<tr><td><a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=put&QUERY=<?php echo $res['pepid'];?>&PROGRAM=blastp&DATABASE=nr&FORMAT_TYPE=HTML&FILTER=T">Blast</a></td></tr>-->
     <tr><td><a href="./blast.php?ID=<?php echo $res['pepid'];?>">Blast</a></td></tr>
 </table>
 </div>

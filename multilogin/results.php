@@ -53,13 +53,6 @@ function genomeSearch($name, $loc, $genomeid, $seq){
         if(!empty($_GET['search'])){
             
         $search="%".$_GET['search']."%";
-            /*
-            $query2="SELECT id, chromid, name FROM genome WHERE name ILIKE :s
-            UNION
-            SELECT id, chromid, name FROM genome WHERE chromid ILIKE :s
-            UNION
-            SELECT id, chromid, name FROM genome WHERE loc ILIKE :s;";
-            */
             $query2="SELECT id, chromid, name, loc, sequence FROM genome WHERE name ILIKE :s
             UNION
             SELECT id, chromid, name, loc, sequence FROM genome WHERE chromid ILIKE :s
@@ -80,15 +73,10 @@ function genomeSearch($name, $loc, $genomeid, $seq){
             $stmt2->execute();
             $res=$stmt;
             $resList=$stmt2;
-            /*
-            while($row=$resList->fetch()){
-                print($row['name']);
-            }*/
         }catch(PDOException $e){
             die($e->getMessage());
         }
     }elseif(empty($name) && empty($loc) && empty($seq) && empty($genomeid)){
-        //$query="SELECT id, chromid, name from genome;";
         $query2="SELECT id, chromid, name, loc, sequence from genome;";
        
         try{
@@ -265,7 +253,6 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
                
                 //query with just the sequence pep
                 $query="SELECT pep.id, pep.chromid, name, pep.location, pepid FROM pep, genome WHERE pep.chromid=genome.chromid AND pep.sequence ILIKE :seq ORDER BY pep.id LIMIT :nbres OFFSET :startat;";
-                //$query2="SELECT pep.id FROM pep WHERE pep.sequence ILIKE :seq;";
 
                 $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FROM pep, cds, annot, genome WHERE pepid=cdsid and pepid=annotid and genome.chromid=pep.chromid and pep.sequence ILIKE :seq;";
 
@@ -291,7 +278,6 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
    
                 $query2="SELECT pepid, pep.location, pep.sequence as seqp, cds.sequence as seqc, name, pep.chromid, annot.geneID, annot.transcript, annot.transcryptType, annot.geneType, annot.symbol, description FroM cds, pep, annot, genome WHERE cdsid=pepid AND annotid=pepid AND pep.chromid=genome.chromid AND cds.sequence ILIKE :seq;";
 
-
             }
         }
         try{
@@ -301,8 +287,7 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             if(!empty($search)){
                 $stmt->bindParam(":par", $search);
                 $stmt2->bindParam(":par", $search);
-            }
-            
+            } 
             
             $stmt->bindParam(":seq", $seq, PDO::PARAM_STR);
             $stmt2->bindParam(":seq", $seq, PDO::PARAM_STR);
@@ -310,11 +295,8 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
             $stmt->bindParam(":startat", $startat, PDO::PARAM_INT);
             
             $stmt->execute();
-            $stmt2->execute();
-            
-            
+            $stmt2->execute();        
             $res=$stmt;
-
             $resList=$stmt2;
             $nbrow=$stmt2->rowCount();
             $totpage=ceil($nbrow/$nbres);
@@ -467,7 +449,7 @@ Results
         <?php
         }
         ?>
-        <!--------------------------->
+        <!--------------------------------------------------------->
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -477,7 +459,7 @@ Results
           <a class="dropdown-item" href="search.php">Search</a>
           <a class="dropdown-item" href="index.php">Home</a>
           <div class="dropdown-divider"></div>
-          <!-----DISPLAY name of user and role------------>
+          <!--------DISPLAY name of user and role------------>
           <p class="dropdown-item" style="color:darkcyan"><?php 
           $name=$_SESSION['user']['firstname'];
           $name.="(".$_SESSION['user']['userrole'].")";
