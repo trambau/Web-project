@@ -106,7 +106,6 @@ $path="annotation.php";
                 $s2->execute();
                 $nbrow=$s2->rowCount();
 				$totpage=ceil($nbrow/$nbres);
-				var_dump($totpage);
 			}catch(PDOException $e){
 				die($e->getMessage());
 			}

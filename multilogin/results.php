@@ -260,7 +260,6 @@ function pepSearch($name, $loc, $seq, $geneid, $id, $trans, $transB, $des, $gene
         }else{//cds
             //check if there are input parameters other than sequence
             if(!empty($search)){
-                echo "test";
                 //query with parameters and gene sequence
             $query="(SELECT pep.id, pep.chromid, name, location, pepid FROM pep, genome, annot WHERE pepid=annotid AND pep.chromid=genome.chromid AND to_tsvector('english', pep.chromid ||' '|| name ||' '|| location ||' '|| pepid ||' '|| geneid ||' '|| transcript ||' '|| genetype ||' '|| transcrypttype ||' '|| symbol ||' '|| description) @@ plainto_tsquery(:par) ORDER BY pep.id)
                     INTERSECT 
